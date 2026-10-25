@@ -12,7 +12,7 @@ Hoặc mở examples.jsonl, mỗi dòng 1 ví dụ: {"problem": "...", "output":
 """
 import json
 
-import 'main.py' as d
+import main as d
 
 HELP = """=== Dạy model vẽ hình ===
 Gõ 1 đề để thử. Sau khi xem hình:
