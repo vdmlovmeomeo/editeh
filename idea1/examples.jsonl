@@ -1,0 +1,31 @@
+{"problem": "Hình chữ nhật MNPQ có MN=7, MQ=2", "output": {"figure": "rectangle", "names": "MNPQ", "MN": 7, "MQ": 2}}
+{"problem": "Hình chữ nhật EFGH", "output": {"figure": "rectangle", "names": "EFGH"}}
+{"problem": "Hình vuông MNPQ cạnh 5", "output": {"figure": "square", "names": "MNPQ", "side": 5}}
+{"problem": "Hình vuông EFGH", "output": {"figure": "square", "names": "EFGH"}}
+{"problem": "Tam giác DEF vuông tại D, DE=6, DF=8, K là chân đường cao từ D xuống EF", "output": {"figure": "right_triangle", "names": "DEF", "right_at": "D", "DE": 6, "DF": 8, "extras": [{"name": "K", "type": "foot", "from": "D", "to": "EF"}]}}
+{"problem": "Tam giác XYZ vuông tại X", "output": {"figure": "right_triangle", "names": "XYZ", "right_at": "X"}}
+{"problem": "Tam giác MNP vuông cân tại M, MN=4", "output": {"figure": "right_isosceles_triangle", "names": "MNP", "right_at": "M", "MN": 4}}
+{"problem": "Tam giác XYZ có XY=4, YZ=5, ZX=6, I là trung điểm YZ, nối X với I", "output": {"figure": "triangle", "names": "XYZ", "XY": 4, "YZ": 5, "ZX": 6, "extras": [{"name": "I", "type": "midpoint", "of": "YZ"}], "draw": ["XI"]}}
+{"problem": "Tam giác MNP", "output": {"figure": "triangle", "names": "MNP"}}
+{"problem": "Tam giác PQR cân tại P, QR=8, đường cao PH=3", "output": {"figure": "isosceles_triangle", "names": "PQR", "apex": "P", "QR": 8, "height": 3, "extras": [{"name": "H", "type": "foot", "from": "P", "to": "QR"}]}}
+{"problem": "Tam giác UVW cân tại U", "output": {"figure": "isosceles_triangle", "names": "UVW", "apex": "U"}}
+{"problem": "Tam giác đều DEF cạnh 6", "output": {"figure": "equilateral_triangle", "names": "DEF", "side": 6}}
+{"problem": "Tam giác đều MNP", "output": {"figure": "equilateral_triangle", "names": "MNP"}}
+{"problem": "Hình bình hành EFGH", "output": {"figure": "parallelogram", "names": "EFGH"}}
+{"problem": "Hình bình hành MNPQ có MN=6, MQ=4, góc M = 70 độ", "output": {"figure": "parallelogram", "names": "MNPQ", "MN": 6, "MQ": 4, "angle": 70}}
+{"problem": "Hình thoi EFGH", "output": {"figure": "rhombus", "names": "EFGH"}}
+{"problem": "Hình thoi MNPQ cạnh 5, góc M = 60 độ", "output": {"figure": "rhombus", "names": "MNPQ", "side": 5, "angle": 60}}
+{"problem": "Hình thang MNPQ (MN // PQ)", "output": {"figure": "trapezoid", "names": "MNPQ"}}
+{"problem": "Hình thang cân MNPQ (MN // PQ), MN=8, PQ=4", "output": {"figure": "isosceles_trapezoid", "names": "MNPQ", "MN": 8, "PQ": 4}}
+{"problem": "Hình thang vuông ABCD vuông tại A và D, AB=5, CD=9, AD=4", "output": {"figure": "right_trapezoid", "names": "ABCD", "AB": 5, "CD": 9, "AD": 4}}
+{"problem": "Hình thang vuông EFGH vuông tại E và H", "output": {"figure": "right_trapezoid", "names": "EFGH"}}
+{"problem": "Tứ giác EFGH", "output": {"figure": "quadrilateral", "names": "EFGH"}}
+{"problem": "Lục giác đều ABCDEF", "output": {"figure": "regular_polygon", "names": "ABCDEF"}}
+{"problem": "Ngũ giác đều MNPQR cạnh 4", "output": {"figure": "regular_polygon", "names": "MNPQR", "side": 4}}
+{"problem": "Đường tròn (I;R)", "output": {"figure": "circle", "center": "I"}}
+{"problem": "Đường tròn tâm K bán kính 4", "output": {"figure": "circle", "center": "K", "r": 4}}
+{"problem": "Cho (S;b), M và N thuộc (S;b), vẽ dây MN", "output": {"figure": "circle", "center": "S", "on_circle": ["M", "N"], "draw": ["MN"]}}
+{"problem": "Cho (T;r), ba điểm M, N, P thuộc (T;r)", "output": {"figure": "circle", "center": "T", "on_circle": ["M", "N", "P"]}}
+{"problem": "Đường tròn (I;R), M thuộc (I;R), nối I với M", "output": {"figure": "circle", "center": "I", "on_circle": ["M"], "draw": ["IM"]}}
+{"problem": "Tam giác GHK vuông tại G, GH=6, GK=8, N thuộc HK", "output": {"figure": "right_triangle", "names": "GHK", "right_at": "G", "GH": 6, "GK": 8, "extras": [{"name": "N", "type": "on_segment", "of": "HK"}]}}
+{"problem": "Tam giác DEF vuông tại D, DE=5, DF=12, vẽ đường tròn ngoại tiếp", "output": {"figure": "right_triangle", "names": "DEF", "right_at": "D", "DE": 5, "DF": 12, "extras": [{"name": "O", "type": "circumcircle", "of": "DEF"}]}}
