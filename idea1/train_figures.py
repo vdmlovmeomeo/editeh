@@ -19,7 +19,8 @@ Gõ 1 đề để thử. Sau khi xem hình:
   y      = đúng, lưu thành ví dụ
   e      = sai, dán JSON đúng vào (1 dòng) rồi lưu
   Enter  = bỏ qua
-Lệnh: :l liệt kê ví dụ | :x xoá ví dụ cuối | :q thoát"""
+Lệnh: :l liệt kê ví dụ | :x xoá ví dụ cuối | :q thoát
+"""
 
 
 def show(data, prob):

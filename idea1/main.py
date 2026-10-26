@@ -19,7 +19,7 @@ PROMPT_HEAD = """You convert a geometry problem (Vietnamese or English) into JSO
 DO NOT compute coordinates and NEVER invent numbers. Only extract the figure type, the point names and the lengths the problem actually gives. A program does the geometry and draws a default shape when no length is given.
 
 Output ONLY one JSON object. Fields:
-- "figure": triangle | right_triangle | right_isosceles_triangle | isosceles_triangle | equilateral_triangle | rectangle | square | parallelogram | rhombus | trapezoid | isosceles_trapezoid | right_trapezoid | quadrilateral | regular_polygon | circle
+- "figure": triangle | right_triangle | right_isosceles_triangle | isosceles_triangle | equilateral_triangle | rectangle | square | parallelogram | rhombus | trapezoid | isosceles_trapezoid | right_trapezoid | quadrilateral | regular_polygon | circle | none (only lines and points, no polygon or circle)
 - "names": vertex names in order, e.g. "ABC", "ABCD", "ABCDEF"
 - given lengths as two-letter keys, ONLY if the problem gives numbers, e.g. "AB": 3, "AC": 4
 - "right_at": vertex with the right angle (right_triangle, right_isosceles_triangle)
@@ -32,43 +32,171 @@ Output ONLY one JSON object. Fields:
 - "on_circle": names of the points lying on the circle, e.g. ["A","B"]
 - "extras": extra points, each one of
   {"name":"M","type":"midpoint","of":"BC"}
-  {"name":"H","type":"foot","from":"A","to":"BC"}     (foot of the perpendicular from A to line BC)
+  {"name":"H","type":"foot","from":"A","to":"BC"}     (foot of the perpendicular from A to line BC, or to a named line d)
   {"name":"N","type":"on_segment","of":"BC"}         (any point lying on segment BC)
   {"name":"G","type":"centroid","of":"ABC"}
   {"name":"O","type":"circumcircle","of":"ABC"}       (circumcenter + circumscribed circle)
-  {"name":"N","type":"on_segment","of":"BC"}         (any point lying on segment BC)
-- "on_circle": names of points lying on the circle, e.g. ["A","B"] (circle only). "(O;R)" means the circle with center O and radius R.
-- "draw": extra segments to draw ONLY if the problem asks (nối, dây, bán kính...), e.g. ["AM"]
+  {"type":"line","name":"d","through":["A","B"]}       (line through two points)
+  {"type":"line","name":"d","through":"M","parallel_to":"BC"}       (parallel_to / perpendicular_to take a line name or two point names)
+  {"type":"line","name":"d","through":"M","perpendicular_to":"BC"}
+  {"type":"line","name":"t","tangent_at":"A","of":"O"}    (tangent at A to the circle with center O)
+  {"type":"line","name":"d"}                               (a free line, no "through")
+  {"name":"A","type":"on_line","of":"d"}                   (point lying on line d)
+  {"name":"M","type":"off_line","of":"d"}                  (point NOT lying on line d)
+  {"name":"M","type":"intersection","of":["d","BC"]}       (intersection of two lines)
+  extras are built in order: list a point before any line that uses it.
+- "draw": segments to draw ONLY if the problem asks (nối, dây, bán kính, đường kính...), e.g. ["AM"], ["OA"]"""
 
-Problem: Hình chữ nhật MNPQ có MN=7, MQ=2
-{"figure":"rectangle","names":"MNPQ","MN":7,"MQ":2}
+# Ví dụ mẫu ban đầu. Lần chạy đầu tiên sẽ được ghi ra examples.jsonl, sau đó sửa file đó.
+SEED_EXAMPLES = [
+    ("Hình chữ nhật MNPQ có MN=7, MQ=2",
+     {"figure": "rectangle", "names": "MNPQ", "MN": 7, "MQ": 2}),
+    ("Hình chữ nhật EFGH", {"figure": "rectangle", "names": "EFGH"}),
+    ("Hình vuông MNPQ cạnh 5", {"figure": "square", "names": "MNPQ", "side": 5}),
+    ("Hình vuông EFGH", {"figure": "square", "names": "EFGH"}),
+    ("Tam giác DEF vuông tại D, DE=6, DF=8, K là chân đường cao từ D xuống EF",
+     {"figure": "right_triangle", "names": "DEF", "right_at": "D", "DE": 6, "DF": 8,
+      "extras": [{"name": "K", "type": "foot", "from": "D", "to": "EF"}]}),
+    ("Tam giác XYZ vuông tại X",
+     {"figure": "right_triangle", "names": "XYZ", "right_at": "X"}),
+    ("Tam giác MNP vuông cân tại M, MN=4",
+     {"figure": "right_isosceles_triangle", "names": "MNP", "right_at": "M", "MN": 4}),
+    ("Tam giác XYZ có XY=4, YZ=5, ZX=6, I là trung điểm YZ, nối X với I",
+     {"figure": "triangle", "names": "XYZ", "XY": 4, "YZ": 5, "ZX": 6,
+      "extras": [{"name": "I", "type": "midpoint", "of": "YZ"}], "draw": ["XI"]}),
+    ("Tam giác MNP", {"figure": "triangle", "names": "MNP"}),
+    ("Tam giác PQR cân tại P, QR=8, đường cao PH=3",
+     {"figure": "isosceles_triangle", "names": "PQR", "apex": "P", "QR": 8, "height": 3,
+      "extras": [{"name": "H", "type": "foot", "from": "P", "to": "QR"}]}),
+    ("Tam giác UVW cân tại U",
+     {"figure": "isosceles_triangle", "names": "UVW", "apex": "U"}),
+    ("Tam giác đều DEF cạnh 6",
+     {"figure": "equilateral_triangle", "names": "DEF", "side": 6}),
+    ("Tam giác đều MNP", {"figure": "equilateral_triangle", "names": "MNP"}),
+    ("Hình bình hành EFGH", {"figure": "parallelogram", "names": "EFGH"}),
+    ("Hình bình hành MNPQ có MN=6, MQ=4, góc M = 70 độ",
+     {"figure": "parallelogram", "names": "MNPQ", "MN": 6, "MQ": 4, "angle": 70}),
+    ("Hình thoi EFGH", {"figure": "rhombus", "names": "EFGH"}),
+    ("Hình thoi MNPQ cạnh 5, góc M = 60 độ",
+     {"figure": "rhombus", "names": "MNPQ", "side": 5, "angle": 60}),
+    ("Hình thang MNPQ (MN // PQ)", {"figure": "trapezoid", "names": "MNPQ"}),
+    ("Hình thang cân MNPQ (MN // PQ), MN=8, PQ=4",
+     {"figure": "isosceles_trapezoid", "names": "MNPQ", "MN": 8, "PQ": 4}),
+    ("Hình thang vuông ABCD vuông tại A và D, AB=5, CD=9, AD=4",
+     {"figure": "right_trapezoid", "names": "ABCD", "AB": 5, "CD": 9, "AD": 4}),
+    ("Hình thang vuông EFGH vuông tại E và H",
+     {"figure": "right_trapezoid", "names": "EFGH"}),
+    ("Tứ giác EFGH", {"figure": "quadrilateral", "names": "EFGH"}),
+    ("Lục giác đều ABCDEF", {"figure": "regular_polygon", "names": "ABCDEF"}),
+    ("Ngũ giác đều MNPQR cạnh 4",
+     {"figure": "regular_polygon", "names": "MNPQR", "side": 4}),
+    ("Đường tròn (I;R)", {"figure": "circle", "center": "I"}),
+    ("Đường tròn tâm K bán kính 4", {"figure": "circle", "center": "K", "r": 4}),
+    ("Cho (S;b), M và N thuộc (S;b), vẽ dây MN",
+     {"figure": "circle", "center": "S", "on_circle": ["M", "N"], "draw": ["MN"]}),
+    ("Cho (T;r), ba điểm M, N, P thuộc (T;r)",
+     {"figure": "circle", "center": "T", "on_circle": ["M", "N", "P"]}),
+    ("Đường tròn (I;R), M thuộc (I;R), nối I với M",
+     {"figure": "circle", "center": "I", "on_circle": ["M"], "draw": ["IM"]}),
+    ("Tam giác GHK vuông tại G, GH=6, GK=8, N thuộc HK",
+     {"figure": "right_triangle", "names": "GHK", "right_at": "G", "GH": 6, "GK": 8,
+      "extras": [{"name": "N", "type": "on_segment", "of": "HK"}]}),
+    ("Tam giác DEF vuông tại D, DE=5, DF=12, vẽ đường tròn ngoại tiếp",
+     {"figure": "right_triangle", "names": "DEF", "right_at": "D", "DE": 5, "DF": 12,
+      "extras": [{"name": "O", "type": "circumcircle", "of": "DEF"}]}),
+    ("Cho đường thẳng d và điểm A không thuộc d",
+     {"figure": "none", "extras": [{"type": "line", "name": "d"},
+                                   {"name": "A", "type": "off_line", "of": "d"}]}),
+    ("Cho đường thẳng a, các điểm M, N thuộc a",
+     {"figure": "none", "extras": [{"type": "line", "name": "a"},
+                                   {"name": "M", "type": "on_line", "of": "a"},
+                                   {"name": "N", "type": "on_line", "of": "a"}]}),
+    ("Cho đường thẳng d và điểm K không thuộc d, kẻ KH vuông góc với d tại H",
+     {"figure": "none", "extras": [{"type": "line", "name": "d"},
+                                   {"name": "K", "type": "off_line", "of": "d"},
+                                   {"name": "H", "type": "foot", "from": "K", "to": "d"}]}),
+    ("Hai đường thẳng a và b cắt nhau tại O",
+     {"figure": "none", "extras": [{"type": "line", "name": "a"}, {"type": "line", "name": "b"},
+                                   {"name": "O", "type": "intersection", "of": ["a", "b"]}]}),
+    ("Hai đường thẳng a và b song song",
+     {"figure": "none", "extras": [{"type": "line", "name": "a"},
+                                   {"type": "line", "name": "b", "parallel_to": "a"}]}),
+    ("Tam giác MNP, đường thẳng d đi qua M và song song với NP",
+     {"figure": "triangle", "names": "MNP",
+      "extras": [{"type": "line", "name": "d", "through": "M", "parallel_to": "NP"}]}),
+    ("Tam giác DEF, đường thẳng a đi qua D và vuông góc với EF",
+     {"figure": "triangle", "names": "DEF",
+      "extras": [{"type": "line", "name": "a", "through": "D", "perpendicular_to": "EF"}]}),
+    ("Tam giác PQR, I thuộc PQ, K thuộc PR, đường thẳng d đi qua I và K",
+     {"figure": "triangle", "names": "PQR",
+      "extras": [{"name": "I", "type": "on_segment", "of": "PQ"},
+                 {"name": "K", "type": "on_segment", "of": "PR"},
+                 {"type": "line", "name": "d", "through": ["I", "K"]}]}),
+    ("Đường thẳng m cắt đường tròn (S;R) tại U và V",
+     {"figure": "circle", "center": "S", "on_circle": ["U", "V"],
+      "extras": [{"type": "line", "name": "m", "through": ["U", "V"]}]}),
+    ("Tiếp tuyến tại M của đường tròn (I;R)",
+     {"figure": "circle", "center": "I", "on_circle": ["M"],
+      "extras": [{"type": "line", "name": "t", "tangent_at": "M", "of": "I"}]}),
+]
 
-Problem: Tam giác DEF vuông tại D, DE=6, DF=8, K là chân đường cao từ D xuống EF
-{"figure":"right_triangle","names":"DEF","right_at":"D","DE":6,"DF":8,"extras":[{"name":"K","type":"foot","from":"D","to":"EF"}]}
 
-Problem: Hình thang vuông ABCD vuông tại A và D, AB=5, CD=9, AD=4
-{"figure":"right_trapezoid","names":"ABCD","AB":5,"CD":9,"AD":4}
+# ---------------------------------------------------------------- ví dụ mẫu
 
-Problem: Tam giác XYZ có XY=4, YZ=5, ZX=6, I là trung điểm YZ, nối X với I
-{"figure":"triangle","names":"XYZ","XY":4,"YZ":5,"ZX":6,"extras":[{"name":"I","type":"midpoint","of":"YZ"}],"draw":["XI"]}
+def save_examples(exs):
+    with EXAMPLES_PATH.open("w", encoding="utf-8") as f:
+        for p, o in exs:
+            f.write(json.dumps({"problem": p, "output": o}, ensure_ascii=False) + "\n")
 
-Problem: Tam giác PQR cân tại P, QR=8, đường cao PH=3
-{"figure":"isosceles_triangle","names":"PQR","apex":"P","QR":8,"height":3,"extras":[{"name":"H","type":"foot","from":"P","to":"QR"}]}
 
-Problem: Đường tròn tâm I bán kính 5
-{"figure":"circle","center":"I","r":5}
+def ensure_examples_file():
+    if not EXAMPLES_PATH.exists():
+        save_examples(SEED_EXAMPLES)
 
-Problem: Đường tròn tâm T bán kính a
-{"figure":"circle","center":"T","r":"a"}
 
-Problem: Cho đường tròn (S;b), M và N thuộc (S;b), vẽ dây MN
-{"figure":"circle","center":"S","r":"b","on_circle":["M","N"],"draw":["MN"]}
+def load_examples():
+    ensure_examples_file()
+    out = []
+    for line in EXAMPLES_PATH.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            e = json.loads(line)
+            out.append((str(e["problem"]), dict(e["output"])))
+        except Exception:  # dòng hỏng thì bỏ qua
+            continue
+    return out
 
-Problem: Tam giác GHK vuông tại G, GH=6, GK=8, N thuộc HK
-{"figure":"right_triangle","names":"GHK","right_at":"G","GH":6,"GK":8,"extras":[{"name":"N","type":"on_segment","of":"HK"}]}
 
-Problem: Tam giác ABC vuông tại A, AB=5, AC=12, vẽ đường tròn ngoại tiếp
-{"figure":"right_triangle","names":"ABC","right_at":"A","AB":5,"AC":12,"extras":[{"name":"O","type":"circumcircle","of":"ABC"}]}"""
+def add_example(problem, output):
+    exs = [e for e in load_examples() if e[0] != problem]
+    exs.append((problem, output))
+    save_examples(exs)
+
+
+def keywords(text):
+    """Các từ khoá thường (bỏ tên điểm viết hoa như ABC, O, R và số)."""
+    return {w.lower() for w in re.findall(r"[^\W\d_]+", text) if not w.isupper()}
+
+
+def pick_examples(prompt, exs, k=N_EXAMPLES):
+    q = keywords(prompt)
+    scored = []
+    for i, (p, o) in enumerate(exs):
+        e = keywords(p)
+        union = q | e
+        scored.append((len(q & e) / len(union) if union else 0.0, i, p, o))
+    best = sorted(scored, reverse=True)[:k]  # điểm bằng nhau -> ưu tiên ví dụ mới thêm
+    best.reverse()  # giống nhất để cuối cùng, sát với đề cần hỏi
+    return [(p, o) for _, _, p, o in best]
+
+
+def build_system(prompt):
+    parts = [PROMPT_HEAD]
+    for p, o in pick_examples(prompt, load_examples()):
+        parts.append("Problem: " + p + "\n" + json.dumps(o, ensure_ascii=False, separators=(",", ":")))
+    return "\n\n".join(parts)
 
 
 # ---------------------------------------------------------------- model
@@ -76,7 +204,7 @@ Problem: Tam giác ABC vuông tại A, AB=5, AC=12, vẽ đường tròn ngoại
 def ask_model(prompt: str, temp: float) -> str:
     payload = {
         "model": MODEL,
-        "system": (prompt),
+        "system": build_system(prompt),
         "prompt": "Problem: " + prompt,
         "stream": False,
         "format": "json",
@@ -136,6 +264,17 @@ def get_sides(data: dict) -> dict:
             except (TypeError, ValueError):
                 pass
     return out
+
+
+def nrm(v):
+    """Vector pháp tuyến (quay v 90 độ)."""
+    return (-v[1], v[0])
+
+
+# Vị trí các điểm đặt lên/ngoài một đường thẳng (nhân với "scale" của đường đó)
+ON_THROUGH = [1.0, -1.0, 1.5, -1.5, 2.0, -2.0]   # đường qua 2 điểm đã có: đặt ra ngoài 2 điểm đó
+ON_FREE = [-0.5, 0.5, 0.0, -1.0, 1.0]            # đường tự do
+OFF_SEQ = [0.0, 0.7, -0.7, 1.4, -1.4]
 
 
 def fit(P, S):
@@ -340,13 +479,14 @@ def _need_name(name):
 
 def build_figure(data: dict) -> dict:
     fig = data.get("figure")
-    if fig != "circle" and fig not in BUILDERS:
+    if fig not in ("circle", "none") and fig not in BUILDERS:
         raise ValueError("Loại hình chưa hỗ trợ: " + str(fig))
 
     names = [str(c) for c in (data.get("names") or "") if str(c).strip()]
     sides = get_sides(data)
     S = lambda p, q: sides.get(p + q) or sides.get(q + p)
     shapes, segs, texts = [], [], []
+    lines, drawn, counters = {}, [], {}  # lines: đường thẳng có tên; drawn: các đường sẽ vẽ
 
     try:
         if fig == "circle":
@@ -367,6 +507,8 @@ def build_figure(data: dict) -> dict:
                    [150 - i * 360 / k for i in range(k)]
             for nm, a in zip(on, angs):
                 pts[nm] = (r * math.cos(math.radians(a)), r * math.sin(math.radians(a)))
+        elif fig == "none":
+            pts = {}
         else:
             pts = BUILDERS[fig](names, S, data)
             segs.append(list(pts.values()) + [next(iter(pts.values()))])
@@ -385,14 +527,38 @@ def build_figure(data: dict) -> dict:
                     texts.append({"x": mx + dx / d * 0.07 * size,
                                   "y": my + dy / d * 0.07 * size, "text": f"{v:g}"})
 
+        def extent():
+            if not pts:
+                return 0.0
+            xs = [p[0] for p in pts.values()]
+            ys = [p[1] for p in pts.values()]
+            return max(max(xs) - min(xs), max(ys) - min(ys))
+
+        def make_line(P, Q):
+            L = math.dist(P, Q)
+            if L < 1e-9:
+                raise ValueError("Hai điểm trùng nhau")
+            return {"p": mid(P, Q), "v": ((Q[0] - P[0]) / L, (Q[1] - P[1]) / L),
+                    "scale": L, "kind": "through"}
+
+        def get_line(ref):
+            """ref = tên đường thẳng ("d") hoặc 2 điểm ("BC" / ["B","C"])."""
+            if isinstance(ref, str) and ref in lines:
+                return lines[ref]
+            ns = list(ref)
+            if len(ns) == 2 and all(x in pts for x in ns):
+                return make_line(pts[ns[0]], pts[ns[1]])
+            raise ValueError("Không tìm thấy đường thẳng " + str(ref))
+
         for e in data.get("extras") or []:
             t, name = e.get("type"), str(e.get("name") or "")
             of = list(e.get("of") or "")
             if t == "midpoint":
                 pts[_need_name(name)] = mid(pts[of[0]], pts[of[1]])
             elif t == "foot":
-                frm, to = str(e["from"]), list(e["to"])
-                pts[_need_name(name)] = foot(pts[frm], pts[to[0]], pts[to[1]])
+                frm, ln = str(e["from"]), get_line(e["to"])
+                pts[_need_name(name)] = foot(
+                    pts[frm], ln["p"], (ln["p"][0] + ln["v"][0], ln["p"][1] + ln["v"][1]))
                 segs.append([pts[frm], pts[name]])
             elif t == "on_segment":
                 p, q = pts[of[0]], pts[of[1]]
@@ -408,6 +574,64 @@ def build_figure(data: dict) -> dict:
                 pts[name] = o
                 shapes.append({"type": "circle", "cx": o[0], "cy": o[1],
                                "r": math.dist(o, P[0]), "color": "tab:green", "fill": False})
+            elif t == "line":
+                th = e.get("through")
+                tn = list(th) if isinstance(th, (str, list)) else []
+                if e.get("tangent_at"):
+                    a, o = str(e["tangent_at"]), str(e.get("of") or "")
+                    rx, ry = pts[a][0] - pts[o][0], pts[a][1] - pts[o][1]
+                    r0 = math.hypot(rx, ry) or 1.0
+                    ln = {"p": pts[a], "v": (-ry / r0, rx / r0), "scale": r0, "kind": "free"}
+                elif e.get("perpendicular_to") is not None or e.get("parallel_to") is not None:
+                    perp = e.get("perpendicular_to") is not None
+                    ref = get_line(e["perpendicular_to"] if perp else e["parallel_to"])
+                    v = nrm(ref["v"]) if perp else ref["v"]
+                    if tn:
+                        p = pts[tn[0]]
+                    elif perp:
+                        p = ref["p"]
+                    else:  # song song mà không nói qua điểm nào: dịch đường kia sang một đoạn
+                        nv = nrm(ref["v"])
+                        p = (ref["p"][0] + nv[0] * 0.6 * ref["scale"],
+                             ref["p"][1] + nv[1] * 0.6 * ref["scale"])
+                    ln = {"p": p, "v": v, "scale": ref["scale"], "kind": "free"}
+                elif len(tn) >= 2:
+                    ln = make_line(pts[tn[0]], pts[tn[1]])
+                elif len(tn) == 1:
+                    ln = {"p": pts[tn[0]], "v": (1.0, 0.0),
+                          "scale": max(3.0, extent()), "kind": "free"}
+                else:  # đường thẳng tự do: đường đầu nằm ngang, đường sau xoay dần
+                    k = counters.get("free", 0)
+                    counters["free"] = k + 1
+                    ang = math.radians([0, 60, 120, 30, 90][k % 5])
+                    ln = {"p": (0.0, 0.0), "v": (math.cos(ang), math.sin(ang)),
+                          "scale": max(4.0 if not pts else extent(), 3.0), "kind": "free"}
+                if name:
+                    lines[name] = ln
+                drawn.append({**ln, "name": name})
+            elif t in ("on_line", "off_line"):
+                ref = e.get("of")
+                ln = get_line(ref)
+                key = (t, str(ref))
+                k = counters.get(key, 0)
+                counters[key] = k + 1
+                if t == "on_line":
+                    seq = ON_THROUGH if ln["kind"] == "through" else ON_FREE
+                    s, off = seq[k % len(seq)] * ln["scale"], 0.0
+                else:
+                    s, off = OFF_SEQ[k % len(OFF_SEQ)] * ln["scale"], 0.55 * ln["scale"]
+                nv = nrm(ln["v"])
+                pts[_need_name(name)] = (ln["p"][0] + ln["v"][0] * s + nv[0] * off,
+                                         ln["p"][1] + ln["v"][1] * s + nv[1] * off)
+            elif t == "intersection":
+                l1, l2 = get_line(e["of"][0]), get_line(e["of"][1])
+                den = l1["v"][0] * l2["v"][1] - l1["v"][1] * l2["v"][0]
+                if abs(den) < 1e-9:
+                    raise ValueError("Hai đường thẳng song song, không có giao điểm")
+                dx, dy = l2["p"][0] - l1["p"][0], l2["p"][1] - l1["p"][1]
+                tt = (dx * l2["v"][1] - dy * l2["v"][0]) / den
+                pts[_need_name(name)] = (l1["p"][0] + l1["v"][0] * tt,
+                                         l1["p"][1] + l1["v"][1] * tt)
             else:
                 raise ValueError("extras chưa hỗ trợ: " + str(t))
 
@@ -418,7 +642,7 @@ def build_figure(data: dict) -> dict:
     except (KeyError, IndexError, TypeError) as e:
         raise ValueError("Model trả thiếu/sai dữ liệu: " + repr(e))
 
-    return {"points": pts, "segments": segs, "texts": texts, "shapes": shapes}
+    return {"points": pts, "segments": segs, "texts": texts, "shapes": shapes, "lines": drawn}
 
 
 # Dự phòng: nếu model trả thẳng tọa độ (points/segments/shapes) thì vẽ luôn
@@ -448,6 +672,39 @@ def parse(data: dict) -> dict:
 
 
 # ---------------------------------------------------------------- vẽ
+
+def clip_line(p, v, x0, x1, y0, y1):
+    """Cắt đường thẳng (qua p, hướng v) theo hình chữ nhật khung nhìn."""
+    lo, hi = -1e9, 1e9
+    for pc, vc, a, b in ((p[0], v[0], x0, x1), (p[1], v[1], y0, y1)):
+        if abs(vc) < 1e-12:
+            if not (a <= pc <= b):
+                return None
+        else:
+            t1, t2 = (a - pc) / vc, (b - pc) / vc
+            lo, hi = max(lo, min(t1, t2)), min(hi, max(t1, t2))
+    if lo >= hi:
+        return None
+    return (p[0] + v[0] * lo, p[1] + v[1] * lo), (p[0] + v[0] * hi, p[1] + v[1] * hi)
+
+
+def draw_line(ax, L, box):
+    seg = clip_line(L["p"], L["v"], *box)
+    if not seg:
+        return
+    (xa, ya), (xb, yb) = seg
+    if (xb, yb) < (xa, ya):  # đầu mút "lớn hơn" ở bên phải/trên, để ghi tên ở đó
+        xa, ya, xb, yb = xb, yb, xa, ya
+    ax.plot([xa, xb], [ya, yb], color="tab:purple", lw=1.8)
+    if L.get("name"):
+        nx, ny = -L["v"][1], L["v"][0]
+        if ny < 0 or (abs(ny) < 1e-9 and nx < 0):
+            nx, ny = -nx, -ny
+        px, py = xa + (xb - xa) * 0.93, ya + (yb - ya) * 0.93
+        ax.annotate(L["name"], (px, py), xytext=(nx * 12, ny * 12), textcoords="offset points",
+                    ha="center", va="center", fontsize=13, fontstyle="italic",
+                    color="tab:purple")
+
 
 def draw(d: dict, title: str):
     fig, ax = plt.subplots(figsize=(7, 7))
@@ -479,8 +736,30 @@ def draw(d: dict, title: str):
         ax.text(t["x"], t["y"], t["text"], ha="center", va="center",
                 fontsize=12, color="tab:red")
 
-    ax.autoscale_view()
-    ax.margins(0.2)
+    # chốt khung nhìn trước (theo điểm/hình/đoạn đại diện của đường thẳng), rồi mới vẽ
+    # đường thẳng kéo dài tới mép khung
+    for L in d.get("lines", []):
+        hh = 0.5 * L.get("scale", 4.0)
+        ax.plot([L["p"][0] - L["v"][0] * hh, L["p"][0] + L["v"][0] * hh],
+                [L["p"][1] - L["v"][1] * hh, L["p"][1] + L["v"][1] * hh], alpha=0)
+    if d["points"] or d["shapes"] or d["segments"] or d["texts"] or d.get("lines"):
+        ax.autoscale_view()
+        ax.margins(0.2)
+        x0, x1 = ax.get_xlim()
+        y0, y1 = ax.get_ylim()
+    else:
+        x0, x1, y0, y1 = -5.0, 5.0, -3.0, 3.0
+    w, h = x1 - x0, y1 - y0
+    if h < 0.5 * w:  # khung quá dẹt (vd. mọi điểm nằm trên 1 đường ngang) -> nới ra
+        c = (y0 + y1) / 2
+        y0, y1 = c - 0.25 * w, c + 0.25 * w
+    elif w < 0.5 * h:
+        c = (x0 + x1) / 2
+        x0, x1 = c - 0.25 * h, c + 0.25 * h
+    ax.set_xlim(x0, x1)
+    ax.set_ylim(y0, y1)
+    for L in d.get("lines", []):
+        draw_line(ax, L, (x0, x1, y0, y1))
     ax.set_aspect("equal")
     ax.grid(alpha=0.25)
     ax.set_title(title, fontsize=10)
