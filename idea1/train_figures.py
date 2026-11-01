@@ -7,19 +7,19 @@ chương trình sẽ đưa ví dụ đó cho model, nên model làm đúng dần
 
 Chạy: python train_figures.py
 
-Lệnh:  :l  liệt kê ví dụ     :x  xoá ví dụ cuối     :q  thoát
+Lệnh:  :l  liệt kê ví dụ     :x  xoá ví dụ cuối     :seed  thêm ví dụ mẫu mới của chương trình     :q  thoát
 Hoặc mở examples.jsonl, mỗi dòng 1 ví dụ: {"problem": "...", "output": {...}}  -> sửa tay cũng được.
 """
 import json
 
-import draw_ai_v5 as d
+import main as d
 
 HELP = """=== Dạy model vẽ hình ===
 Gõ 1 đề để thử. Sau khi xem hình:
   y      = đúng, lưu thành ví dụ
   e      = sai, dán JSON đúng vào (1 dòng) rồi lưu
   Enter  = bỏ qua
-Lệnh: :l liệt kê ví dụ | :x xoá ví dụ cuối | :q thoát"""
+Lệnh: :l liệt kê ví dụ | :x xoá ví dụ cuối | :seed thêm ví dụ mẫu mới | :q thoát"""
 
 
 def show(data, prob):
@@ -56,6 +56,13 @@ def main():
         if prob == ":l":
             for i, (p, _) in enumerate(d.load_examples(), 1):
                 print(f"  {i:3}. {p}")
+            continue
+        if prob == ":seed":
+            exs = d.load_examples()
+            have = {p for p, _ in exs}
+            new = [(p, o) for p, o in d.SEED_EXAMPLES if p not in have]
+            d.save_examples(exs + new)
+            print(f"  đã thêm {len(new)} ví dụ mẫu mới (ví dụ của bạn giữ nguyên)")
             continue
         if prob == ":x":
             exs = d.load_examples()
