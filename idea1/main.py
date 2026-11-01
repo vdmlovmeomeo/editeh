@@ -2,6 +2,8 @@ import json
 import math
 import re
 import sys
+from argparse import ArgumentParser
+from datetime import datetime
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -10,10 +12,11 @@ from matplotlib.patches import Circle
 import requests
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "falcon3:7b"
+MODEL = "qwen2.5-coder:3b"
 MAX_RETRY = 3
-N_EXAMPLES = 6  # số ví dụ giống nhất đưa vào prompt
+N_EXAMPLES = 3  # số ví dụ giống nhất đưa vào prompt
 EXAMPLES_PATH = Path(__file__).with_name("examples.jsonl")
+OUTPUT_DIR = Path(__file__).with_name("outputs")
 
 PROMPT_HEAD = """You convert a geometry problem (Vietnamese or English) into JSON.
 DO NOT compute coordinates and NEVER invent numbers. Only extract the figure type, the point names and the lengths the problem actually gives. A program does the geometry and draws a default shape when no length is given.
@@ -35,6 +38,8 @@ Output ONLY one JSON object. Fields:
   {"name":"H","type":"foot","from":"A","to":"BC"}     (foot of the perpendicular from A to line BC, or to a named line d)
   {"name":"N","type":"on_segment","of":"BC"}         (any point lying on segment BC)
   {"name":"G","type":"centroid","of":"ABC"}
+  {"name":"I","type":"incenter","of":"ABC"}       (tâm đường tròn nội tiếp tam giác)
+  {"name":"H","type":"orthocenter","of":"ABC"}     (trực tâm tam giác)
   {"name":"O","type":"circumcircle","of":"ABC"}       (circumcenter + circumscribed circle)
   {"type":"line","name":"d","through":["A","B"]}       (line through two points)
   {"type":"line","name":"d","through":"M","parallel_to":"BC"}       (parallel_to / perpendicular_to take a line name or two point names)
@@ -45,7 +50,12 @@ Output ONLY one JSON object. Fields:
   {"name":"M","type":"off_line","of":"d"}                  (point NOT lying on line d)
   {"name":"M","type":"intersection","of":["d","BC"]}       (intersection of two lines)
   extras are built in order: list a point before any line that uses it.
-- "draw": segments to draw ONLY if the problem asks (nối, dây, bán kính, đường kính...), e.g. ["AM"], ["OA"]"""
+- "draw": segments to draw ONLY if the problem asks (nối, dây, bán kính, đường kính...), e.g. ["AM"], ["OA"]
+
+IMPORTANT: Never omit a stated construction. If two lines intersect, a point lies on a side,
+or segments are connected, encode every fact using "extras" and/or "draw", even if the base figure is clear.
+For "M thuộc BC; AM cắt BD tại E; nối FM", define M as on_segment, then E as the
+intersection of AM and BD, and include AM/FM in draw."""
 
 # Ví dụ mẫu ban đầu. Lần chạy đầu tiên sẽ được ghi ra examples.jsonl, sau đó sửa file đó.
 SEED_EXAMPLES = [
@@ -212,7 +222,11 @@ def ask_model(prompt: str, temp: float) -> str:
         "options": {"temperature": temp, "num_ctx": 4096, "num_predict": 1000},
     }
     r = requests.post(OLLAMA_URL, json=payload, timeout=600)
-    r.raise_for_status()
+    try:
+        r.raise_for_status()
+    except requests.HTTPError as e:
+        detail = r.text.strip() or "(Ollama không trả nội dung lỗi)"
+        raise RuntimeError(f"Ollama HTTP {r.status_code}: {detail}") from e
     return r.json()["response"]
 
 
@@ -223,6 +237,117 @@ def extract_json(text: str) -> dict:
     if a == -1 or b == -1:
         raise ValueError("Không tìm thấy JSON")
     return json.loads(text[a : b + 1])
+
+
+def remove_invented_measurements(data: dict, prompt: str) -> dict:
+    """Không cho model tự thêm số đo cạnh/góc không có trong đề."""
+    if not data.get("figure"):
+        return data
+    raw_numbers = re.findall(r"(?<![A-Za-z])\d+(?:[.,]\d+)?", prompt)
+    allowed = {x.replace(",", ".") for x in raw_numbers}
+    out = dict(data)
+    for key, value in list(out.items()):
+        is_measurement = key in {"side", "angle", "height", "r"} or (
+            isinstance(key, str) and re.fullmatch(r"[A-Z]{2}", key)
+        )
+        if is_measurement and isinstance(value, (int, float)):
+            if str(value) not in allowed and f"{value:g}" not in allowed:
+                out.pop(key)
+    return out
+
+
+def enforce_explicit_figure(data: dict, prompt: str) -> dict:
+    """Ưu tiên loại hình được nói rõ trong đề hơn nhãn model tự suy đoán."""
+    p = prompt.lower()
+    explicit = (
+        ("hình vuông", "square"),
+        ("hình chữ nhật", "rectangle"),
+        ("hình bình hành", "parallelogram"),
+        ("hình thoi", "rhombus"),
+        ("hình thang cân", "isosceles_trapezoid"),
+        ("hình thang vuông", "right_trapezoid"),
+        ("hình thang", "trapezoid"),
+        ("tam giác đều", "equilateral_triangle"),
+        ("tam giác vuông cân", "right_isosceles_triangle"),
+        ("tam giác vuông", "right_triangle"),
+        ("tam giác cân", "isosceles_triangle"),
+        ("tam giác", "triangle"),
+    )
+    out = dict(data)
+    for phrase, figure in explicit:
+        if phrase in p:
+            out["figure"] = figure
+            break
+    # Explicit vertex names are more reliable than a model's guessed names.
+    m = re.search(r"(?:hình vuông|hình chữ nhật|hình bình hành|hình thoi|hình thang(?: cân| vuông)?)\s+([A-Z]{4})", prompt, re.I)
+    if m:
+        out["names"] = m.group(1).upper()
+    # Không cho điểm phụ ghi đè lên các đỉnh nền (ví dụ M/N/P/Q của hình bình hành).
+    base_names = set(str(out.get("names") or ""))
+    if base_names and out.get("extras"):
+        out["extras"] = [e for e in out["extras"]
+                         if str(e.get("name") or "") not in base_names]
+    return out
+
+
+def enforce_diagonal_construction(data: dict, prompt: str) -> dict:
+    """Recover the common 'diagonals intersect at O, connect O to vertices' form."""
+    out = dict(data)
+    extras = list(out.get("extras") or [])
+    draws = list(out.get("draw") or [])
+    m = re.search(r"đường chéo\s+([A-Z]{2})\s+và\s+([A-Z]{2})\s+cắt nhau tại\s+([A-Z])", prompt, re.I)
+    if m:
+        a, b, o = m.group(1).upper(), m.group(2).upper(), m.group(3).upper()
+        if not any(e.get("name") == o and e.get("type") == "intersection" for e in extras):
+            extras.append({"name": o, "type": "intersection", "of": [a, b]})
+        for seg in (a, b):
+            if seg not in draws:
+                draws.append(seg)
+        n = re.search(r"nối\s+" + re.escape(o) + r"\s+với\s+([A-Z](?:\s*,\s*[A-Z])*)", prompt, re.I)
+        if n:
+            for v in re.findall(r"[A-Z]", n.group(1).upper()):
+                seg = o + v
+                if seg not in draws:
+                    draws.append(seg)
+    out["extras"], out["draw"] = extras, draws
+    return out
+
+
+def normalize_prompt(prompt: str) -> str:
+    """Chuẩn hoá ký hiệu, viết tắt và vài cách đảo câu hình học."""
+    p = str(prompt)
+    replacements = {
+        "△": " tam giác ", "Δ": " tam giác ", "∠": " góc ",
+        "⊥": " vuông góc ", "⟂": " vuông góc ", "∥": " song song ",
+        "||": " song song ", "°": " độ ",
+    }
+    for old, new in replacements.items():
+        p = p.replace(old, new)
+    # Viết tắt phổ biến, chỉ thay khi là một từ riêng.
+    p = re.sub(r"\b(?:tg|tgiac)\b", "tam giác", p, flags=re.I)
+    p = re.sub(r"\bhv\b", "hình vuông", p, flags=re.I)
+    p = re.sub(r"\bhcn\b", "hình chữ nhật", p, flags=re.I)
+    p = re.sub(r"\bbh\b", "hình bình hành", p, flags=re.I)
+    p = re.sub(r"\bđt\b", "đường thẳng", p, flags=re.I)
+    # ABCD là hình vuông / ABC là tam giác ABC -> hình vuông ABCD.
+    p = re.sub(r"\b([A-Z]{3,6})\s+là\s+(hình\s+(?:vuông|chữ nhật|bình hành|thoi|thang)|tam giác(?:\s+đều|\s+cân|\s+vuông)?)",
+               r"\2 \1", p, flags=re.I)
+    return re.sub(r"\s+", " ", p).strip()
+
+
+def enforce_explicit_relations(data: dict, prompt: str) -> dict:
+    """Tự vẽ các đoạn/đường xuất hiện trong quan hệ vuông góc/song song."""
+    out = dict(data)
+    draws = list(out.get("draw") or [])
+    # AC vuông góc BD / AC song song BD (đã được normalize về chữ).
+    for pattern in (r"\b([A-Z]{2})\s+vuông góc\s+([A-Z]{2})\b",
+                    r"\b([A-Z]{2})\s+song song\s+([A-Z]{2})\b"):
+        for a, b in re.findall(pattern, prompt, flags=re.I):
+            for seg in (a.upper(), b.upper()):
+                if seg not in draws:
+                    draws.append(seg)
+    out["draw"] = draws
+    return out
 
 
 # ---------------------------------------------------------------- hình học
@@ -246,6 +371,31 @@ def circumcenter(a, b, c):
     ux = (sa * (b[1] - c[1]) + sb * (c[1] - a[1]) + sc * (a[1] - b[1])) / d
     uy = (sa * (c[0] - b[0]) + sb * (a[0] - c[0]) + sc * (b[0] - a[0])) / d
     return (ux, uy)
+
+
+def incenter(a, b, c):
+    """Tâm nội tiếp: trọng số theo độ dài cạnh đối diện."""
+    wa, wb, wc = math.dist(b, c), math.dist(a, c), math.dist(a, b)
+    s = wa + wb + wc
+    if s < 1e-12:
+        raise ValueError("Tam giác suy biến")
+    return ((wa * a[0] + wb * b[0] + wc * c[0]) / s,
+            (wa * a[1] + wb * b[1] + wc * c[1]) / s)
+
+
+def orthocenter(a, b, c):
+    """Trực tâm là giao của đường cao qua A và đường cao qua B."""
+    abx, aby = b[0] - a[0], b[1] - a[1]
+    bcx, bcy = c[0] - b[0], c[1] - b[1]
+    # A + t*n(BC), B + u*n(AC)
+    n1 = (- (c[1] - b[1]), c[0] - b[0])
+    n2 = (- (c[1] - a[1]), c[0] - a[0])
+    den = n1[0] * n2[1] - n1[1] * n2[0]
+    if abs(den) < 1e-12:
+        raise ValueError("Tam giác suy biến")
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    t = (dx * n2[1] - dy * n2[0]) / den
+    return (a[0] + t * n1[0], a[1] + t * n1[1])
 
 
 def root(x, what="số liệu"):
@@ -567,6 +717,12 @@ def build_figure(data: dict) -> dict:
             elif t == "centroid":
                 P = [pts[x] for x in of[:3]]
                 pts[_need_name(name)] = (sum(p[0] for p in P) / 3, sum(p[1] for p in P) / 3)
+            elif t == "incenter":
+                P = [pts[x] for x in of[:3]]
+                pts[_need_name(name)] = incenter(*P)
+            elif t == "orthocenter":
+                P = [pts[x] for x in of[:3]]
+                pts[_need_name(name)] = orthocenter(*P)
             elif t == "circumcircle":
                 name = name or "O"
                 P = [pts[x] for x in of[:3]]
@@ -608,7 +764,15 @@ def build_figure(data: dict) -> dict:
                           "scale": max(4.0 if not pts else extent(), 3.0), "kind": "free"}
                 if name:
                     lines[name] = ln
-                drawn.append({**ln, "name": name})
+                # Models sometimes encode "nối OM" as a named line instead of
+                # putting OM in draw. A two-uppercase-letter name is a segment,
+                # while names such as d/t remain infinite construction lines.
+                segment_name = (len(name) == 2 and name.isupper()
+                                and name[0] in pts and name[1] in pts)
+                if segment_name:
+                    segs.append([pts[name[0]], pts[name[1]]])
+                else:
+                    drawn.append({**ln, "name": name})
             elif t in ("on_line", "off_line"):
                 ref = e.get("of")
                 ln = get_line(ref)
@@ -706,7 +870,7 @@ def draw_line(ax, L, box):
                     color="tab:purple")
 
 
-def draw(d: dict, title: str):
+def draw(d: dict, title: str, output_path: Path | None = None):
     fig, ax = plt.subplots(figsize=(7, 7))
 
     for s in d["shapes"]:
@@ -729,7 +893,8 @@ def draw(d: dict, title: str):
                 dx, dy, n = -1.0, -1.0, math.sqrt(2)
             ax.annotate(name, (x, y), xytext=(dx / n * 14, dy / n * 14),
                         textcoords="offset points", ha="center", va="center",
-                        fontsize=14, fontweight="bold")
+                        fontsize=14, fontweight="bold", zorder=10,
+                        bbox=dict(facecolor="white", edgecolor="none", pad=0.7))
 
     for t in d["texts"]:
         ax.plot(t["x"], t["y"], alpha=0)  # để autoscale tính cả vị trí text
@@ -763,18 +928,27 @@ def draw(d: dict, title: str):
     ax.set_aspect("equal")
     ax.grid(alpha=0.25)
     ax.set_title(title, fontsize=10)
+    if output_path is not None:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(output_path, dpi=200, bbox_inches="tight")
+        print(f"  Đã lưu ảnh: {output_path}")
     plt.show()
 
 
-def run(prompt: str):
+def run(prompt: str, output_path: Path | None = None):
+    normalized_prompt = normalize_prompt(prompt)
     last = None
     for i in range(1, MAX_RETRY + 1):
         temp = 0 if i == 1 else 0.5  # temp=0 thì retry ra y hệt, nên các lần sau tăng nhẹ
         print(f"[{i}/{MAX_RETRY}] đang hỏi {MODEL}...")
         try:
-            raw = ask_model(prompt, temp)
+            raw = ask_model(normalized_prompt, temp)
             print("  model trả:", raw.strip()[:500])
-            draw(parse(extract_json(raw)), prompt)
+            data = enforce_explicit_figure(extract_json(raw), normalized_prompt)
+            data = enforce_diagonal_construction(data, normalized_prompt)
+            data = enforce_explicit_relations(data, normalized_prompt)
+            data = remove_invented_measurements(data, normalized_prompt)
+            draw(parse(data), prompt, output_path)
             return
         except Exception as e:
             last = e
@@ -783,11 +957,20 @@ def run(prompt: str):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        run(" ".join(sys.argv[1:]))
+    parser = ArgumentParser(description="Tạo hình học từ đề bài bằng Ollama.")
+    parser.add_argument("prompt", nargs="*", help="Đề bài hình học")
+    parser.add_argument("--out", type=Path, help="Đường dẫn PNG cần xuất")
+    args = parser.parse_args()
+    if args.prompt:
+        target = args.out
+        if target is None:
+            stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            target = OUTPUT_DIR / f"diagram-{stamp}.png"
+        run(" ".join(args.prompt), target)
     else:
         while True:
             p = input("Đề (q để thoát): ").strip()
             if p.lower() in ("q", "quit", ""):
                 break
-            run(p)
+            stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            run(p, OUTPUT_DIR / f"diagram-{stamp}.png")
