@@ -1,0 +1,244 @@
+# train_cases.txt - bộ ca train cho draw-AI: mỗi dòng 'đề ||| {json}'. Dòng bắt đầu bằng # hoặc ## là tên nhóm.
+# Chương trình tự nạp file này vào examples.jsonl (lệnh :seed trong train_figures.py).
+## 0. Ví dụ nền (có sẵn trong examples.jsonl, gồm cả các đề bạn tự thêm)
+Hình chữ nhật MNPQ có MN=7, MQ=2 ||| {"figure":"rectangle","names":"MNPQ","MN":7,"MQ":2}
+Hình chữ nhật EFGH ||| {"figure":"rectangle","names":"EFGH"}
+Hình vuông MNPQ cạnh 5 ||| {"figure":"square","names":"MNPQ","side":5}
+Hình vuông EFGH ||| {"figure":"square","names":"EFGH"}
+Tam giác DEF vuông tại D, DE=6, DF=8, K là chân đường cao từ D xuống EF ||| {"figure":"right_triangle","names":"DEF","right_at":"D","DE":6,"DF":8,"extras":[{"name":"K","type":"foot","from":"D","to":"EF"}]}
+Tam giác XYZ vuông tại X ||| {"figure":"right_triangle","names":"XYZ","right_at":"X"}
+Tam giác MNP vuông cân tại M, MN=4 ||| {"figure":"right_isosceles_triangle","names":"MNP","right_at":"M","MN":4}
+Tam giác XYZ có XY=4, YZ=5, ZX=6, I là trung điểm YZ, nối X với I ||| {"figure":"triangle","names":"XYZ","XY":4,"YZ":5,"ZX":6,"extras":[{"name":"I","type":"midpoint","of":"YZ"}],"draw":["XI"]}
+Tam giác MNP ||| {"figure":"triangle","names":"MNP"}
+Tam giác PQR cân tại P, QR=8, đường cao PH=3 ||| {"figure":"isosceles_triangle","names":"PQR","apex":"P","QR":8,"height":3,"extras":[{"name":"H","type":"foot","from":"P","to":"QR"}]}
+Tam giác UVW cân tại U ||| {"figure":"isosceles_triangle","names":"UVW","apex":"U"}
+Tam giác đều DEF cạnh 6 ||| {"figure":"equilateral_triangle","names":"DEF","side":6}
+Tam giác đều MNP ||| {"figure":"equilateral_triangle","names":"MNP"}
+Hình bình hành EFGH ||| {"figure":"parallelogram","names":"EFGH"}
+Hình bình hành MNPQ có MN=6, MQ=4, góc M = 70 độ ||| {"figure":"parallelogram","names":"MNPQ","MN":6,"MQ":4,"angle":70}
+Hình thoi EFGH ||| {"figure":"rhombus","names":"EFGH"}
+Hình thoi MNPQ cạnh 5, góc M = 60 độ ||| {"figure":"rhombus","names":"MNPQ","side":5,"angle":60}
+Hình thang MNPQ (MN // PQ) ||| {"figure":"trapezoid","names":"MNPQ"}
+Hình thang cân MNPQ (MN // PQ), MN=8, PQ=4 ||| {"figure":"isosceles_trapezoid","names":"MNPQ","MN":8,"PQ":4}
+Hình thang vuông ABCD vuông tại A và D, AB=5, CD=9, AD=4 ||| {"figure":"right_trapezoid","names":"ABCD","AB":5,"CD":9,"AD":4}
+Hình thang vuông EFGH vuông tại E và H ||| {"figure":"right_trapezoid","names":"EFGH"}
+Tứ giác EFGH ||| {"figure":"quadrilateral","names":"EFGH"}
+Lục giác đều ABCDEF ||| {"figure":"regular_polygon","names":"ABCDEF"}
+Ngũ giác đều MNPQR cạnh 4 ||| {"figure":"regular_polygon","names":"MNPQR","side":4}
+Đường tròn (I;R) ||| {"figure":"circle","center":"I"}
+Đường tròn tâm K bán kính 4 ||| {"figure":"circle","center":"K","r":4}
+Cho (S;b), M và N thuộc (S;b), vẽ dây MN ||| {"figure":"circle","center":"S","on_circle":["M","N"],"draw":["MN"]}
+Cho (T;r), ba điểm M, N, P thuộc (T;r) ||| {"figure":"circle","center":"T","on_circle":["M","N","P"]}
+Đường tròn (I;R), M thuộc (I;R), nối I với M ||| {"figure":"circle","center":"I","on_circle":["M"],"draw":["IM"]}
+Tam giác GHK vuông tại G, GH=6, GK=8, N thuộc HK ||| {"figure":"right_triangle","names":"GHK","right_at":"G","GH":6,"GK":8,"extras":[{"name":"N","type":"on_segment","of":"HK"}]}
+Tam giác DEF vuông tại D, DE=5, DF=12, vẽ đường tròn ngoại tiếp ||| {"figure":"right_triangle","names":"DEF","right_at":"D","DE":5,"DF":12,"extras":[{"name":"O","type":"circumcircle","of":"DEF"}]}
+Cho đường thẳng d và điểm A không thuộc d ||| {"figure":"none","extras":[{"type":"line","name":"d"},{"name":"A","type":"off_line","of":"d"}]}
+Cho đường thẳng a, các điểm M, N thuộc a ||| {"figure":"none","extras":[{"type":"line","name":"a"},{"name":"M","type":"on_line","of":"a"},{"name":"N","type":"on_line","of":"a"}]}
+Cho đường thẳng d và điểm K không thuộc d, kẻ KH vuông góc với d tại H ||| {"figure":"none","extras":[{"type":"line","name":"d"},{"name":"K","type":"off_line","of":"d"},{"name":"H","type":"foot","from":"K","to":"d"}]}
+Hai đường thẳng a và b cắt nhau tại O ||| {"figure":"none","extras":[{"type":"line","name":"a"},{"type":"line","name":"b"},{"name":"O","type":"intersection","of":["a","b"]}]}
+Hai đường thẳng a và b song song ||| {"figure":"none","extras":[{"type":"line","name":"a"},{"type":"line","name":"b","parallel_to":"a"}]}
+Tam giác MNP, đường thẳng d đi qua M và song song với NP ||| {"figure":"triangle","names":"MNP","extras":[{"type":"line","name":"d","through":"M","parallel_to":"NP"}]}
+Tam giác DEF, đường thẳng a đi qua D và vuông góc với EF ||| {"figure":"triangle","names":"DEF","extras":[{"type":"line","name":"a","through":"D","perpendicular_to":"EF"}]}
+Tam giác PQR, I thuộc PQ, K thuộc PR, đường thẳng d đi qua I và K ||| {"figure":"triangle","names":"PQR","extras":[{"name":"I","type":"on_segment","of":"PQ"},{"name":"K","type":"on_segment","of":"PR"},{"type":"line","name":"d","through":["I","K"]}]}
+Đường thẳng m cắt đường tròn (S;R) tại U và V ||| {"figure":"circle","center":"S","on_circle":["U","V"],"extras":[{"type":"line","name":"m","through":["U","V"]}]}
+Tiếp tuyến tại M của đường tròn (I;R) ||| {"figure":"circle","center":"I","on_circle":["M"],"extras":[{"type":"line","name":"t","tangent_at":"M","of":"I"}]}
+Trong hình vuông ABCD, AC và BD cắt nhau tại O. M thuộc BC, N thuộc CD. AM cắt BD tại E, AN cắt BD tại F. Nối FM và MN, biết góc MAN bằng 45 độ. ||| {"figure":"square","names":"ABCD","extras":[{"name":"M","type":"on_segment","of":"BC","ratio":0.4},{"name":"N","type":"on_segment","of":"CD","ratio":0.57},{"name":"O","type":"intersection","of":["AC","BD"]},{"name":"E","type":"intersection","of":["AM","BD"]},{"name":"F","type":"intersection","of":["AN","BD"]}],"draw":["AC","BD","AM","AN","FM","MN"]}
+Tam giác ABC, G là trọng tâm, I là tâm đường tròn nội tiếp, O là tâm đường tròn ngoại tiếp, H là trực tâm ||| {"figure":"triangle","names":"ABC","extras":[{"name":"G","type":"centroid","of":"ABC"},{"name":"I","type":"incenter","of":"ABC"},{"name":"O","type":"circumcircle","of":"ABC"},{"name":"H","type":"orthocenter","of":"ABC"}]}
+## 1. Tam giác thường
+Tam giác ABC ||| {"figure":"triangle","names":"ABC"}
+Cho tam giác MNP ||| {"figure":"triangle","names":"MNP"}
+Tam giác ABC nhọn ||| {"figure":"triangle","names":"ABC"}
+Tam giác ABC tù tại A ||| {"figure":"triangle","names":"ABC","kind":"obtuse"}
+Cho tam giác MNP có góc M tù ||| {"figure":"triangle","names":"MNP","kind":"obtuse"}
+Tam giác ABC có AB = 5 cm, AC = 7 cm, BC = 6 cm ||| {"figure":"triangle","names":"ABC","AB":5,"AC":7,"BC":6}
+Cho tam giác DEF có DE = 4, EF = 5, DF = 6 ||| {"figure":"triangle","names":"DEF","DE":4,"EF":5,"DF":6}
+Tam giác ABC có góc A = 50°, AB = 5, AC = 4 ||| {"figure":"triangle","names":"ABC","AB":5,"AC":4,"angle_A":50}
+Tam giác ABC có góc B = 40 độ, góc C = 70 độ ||| {"figure":"triangle","names":"ABC","angle_B":40,"angle_C":70}
+Tam giác ABC có góc A = 60°, góc B = 45°, AB = 8 ||| {"figure":"triangle","names":"ABC","AB":8,"angle_A":60,"angle_B":45}
+Tam giác MNP có MN = 6, góc M = 30° ||| {"figure":"triangle","names":"MNP","MN":6,"angle_M":30}
+tam giac ABC co AB = 3, AC = 4 ||| {"figure":"triangle","names":"ABC","AB":3,"AC":4}
+Triangle ABC with AB = 6 and AC = 8 ||| {"figure":"triangle","names":"ABC","AB":6,"AC":8}
+Cho △MNP có MN = 3, NP = 4, MP = 5 ||| {"figure":"triangle","names":"MNP","MN":3,"NP":4,"MP":5}
+## 2. Tam giác vuông
+Tam giác ABC vuông tại A ||| {"figure":"right_triangle","names":"ABC","right_at":"A"}
+Tam giác ABC vuông tại A, AB = 6, AC = 8 ||| {"figure":"right_triangle","names":"ABC","right_at":"A","AB":6,"AC":8}
+Tam giác ABC vuông tại B, AB = 3, BC = 4 ||| {"figure":"right_triangle","names":"ABC","right_at":"B","AB":3,"BC":4}
+Tam giác DEF vuông tại E, DE = 5, DF = 13 ||| {"figure":"right_triangle","names":"DEF","right_at":"E","DE":5,"DF":13}
+Tam giác ABC vuông tại A, góc B = 30 độ ||| {"figure":"right_triangle","names":"ABC","right_at":"A","angle_B":30}
+Tam giác ABC vuông tại A có AB = 4, góc C = 60° ||| {"figure":"right_triangle","names":"ABC","right_at":"A","AB":4,"angle_C":60}
+Tam giác ABC vuông cân tại A ||| {"figure":"right_isosceles_triangle","names":"ABC","right_at":"A"}
+Tam giác ABC vuông cân tại A, AB = 5 ||| {"figure":"right_isosceles_triangle","names":"ABC","right_at":"A","AB":5}
+Tam giác ABC vuông tại A, đường cao AH ||| {"figure":"right_triangle","names":"ABC","right_at":"A","extras":[{"name":"H","type":"foot","from":"A","to":"BC"}]}
+Tam giác ABC vuông tại A, AB = 3, AC = 4, đường cao AH ||| {"figure":"right_triangle","names":"ABC","right_at":"A","AB":3,"AC":4,"extras":[{"name":"H","type":"foot","from":"A","to":"BC"}]}
+Tam giác ABC vuông tại A, M là trung điểm BC, nối AM ||| {"figure":"right_triangle","names":"ABC","right_at":"A","extras":[{"name":"M","type":"midpoint","of":"BC"}],"draw":["AM"]}
+Tam giác ABC vuông tại A, đường cao AH, M là trung điểm BC ||| {"figure":"right_triangle","names":"ABC","right_at":"A","extras":[{"name":"H","type":"foot","from":"A","to":"BC"},{"name":"M","type":"midpoint","of":"BC"}],"draw":["AM"]}
+Tam giác ABC vuông tại A, AD là phân giác (D thuộc BC) ||| {"figure":"right_triangle","names":"ABC","right_at":"A","extras":[{"name":"D","type":"bisector_foot","from":"A","of":"BC"}]}
+Tam giác ABC vuông tại A, O là tâm đường tròn ngoại tiếp ||| {"figure":"right_triangle","names":"ABC","right_at":"A","extras":[{"name":"O","type":"circumcircle","of":"ABC"}]}
+Tam giác ABC vuông tại A, đường tròn đường kính BC tâm O ||| {"figure":"right_triangle","names":"ABC","right_at":"A","extras":[{"type":"circle","center":"O","diameter":["B","C"]}]}
+## 3. Tam giác cân, tam giác đều
+Tam giác ABC cân tại A ||| {"figure":"isosceles_triangle","names":"ABC","apex":"A"}
+Tam giác ABC cân tại A, AB = AC = 5, BC = 6 ||| {"figure":"isosceles_triangle","names":"ABC","apex":"A","AB":5,"AC":5,"BC":6}
+Tam giác ABC cân tại A có góc A = 40° ||| {"figure":"isosceles_triangle","names":"ABC","apex":"A","angle_A":40}
+Tam giác ABC cân tại A có góc B = 70° ||| {"figure":"isosceles_triangle","names":"ABC","apex":"A","angle_B":70}
+Tam giác ABC cân tại A, M là trung điểm BC ||| {"figure":"isosceles_triangle","names":"ABC","apex":"A","extras":[{"name":"M","type":"midpoint","of":"BC"}],"draw":["AM"]}
+Tam giác ABC cân tại A, các đường cao BD và CE ||| {"figure":"isosceles_triangle","names":"ABC","apex":"A","extras":[{"name":"D","type":"foot","from":"B","to":"AC"},{"name":"E","type":"foot","from":"C","to":"AB"}]}
+Tam giác đều ABC cạnh a ||| {"figure":"equilateral_triangle","names":"ABC","side_labels":{"AB":"a"}}
+Tam giác đều ABC, G là trọng tâm ||| {"figure":"equilateral_triangle","names":"ABC","extras":[{"name":"G","type":"centroid","of":"ABC"}]}
+Tam giác đều ABC cạnh 6, đường cao AH ||| {"figure":"equilateral_triangle","names":"ABC","side":6,"extras":[{"name":"H","type":"foot","from":"A","to":"BC"}]}
+## 4. Điểm đặc biệt trong tam giác
+Tam giác ABC, M là trung điểm BC, N là trung điểm AC. Nối MN ||| {"figure":"triangle","names":"ABC","extras":[{"name":"M","type":"midpoint","of":"BC"},{"name":"N","type":"midpoint","of":"AC"}],"draw":["MN"]}
+Tam giác ABC có hai đường trung tuyến AM và BN cắt nhau tại G ||| {"figure":"triangle","names":"ABC","extras":[{"name":"M","type":"midpoint","of":"BC"},{"name":"N","type":"midpoint","of":"AC"},{"name":"G","type":"intersection","of":["AM","BN"]}],"draw":["AM","BN"]}
+Tam giác ABC có ba đường cao AD, BE, CF cắt nhau tại H ||| {"figure":"triangle","names":"ABC","extras":[{"name":"H","type":"orthocenter","of":"ABC","feet":["D","E","F"]}]}
+Tam giác ABC có đường tròn nội tiếp (I) tiếp xúc BC, CA, AB lần lượt tại D, E, F ||| {"figure":"triangle","names":"ABC","extras":[{"name":"I","type":"incircle","of":"ABC","touch":["D","E","F"]}]}
+Tam giác ABC, I là tâm đường tròn nội tiếp ||| {"figure":"triangle","names":"ABC","extras":[{"name":"I","type":"incircle","of":"ABC"}]}
+Tam giác ABC, AD là phân giác trong (D thuộc BC) ||| {"figure":"triangle","names":"ABC","extras":[{"name":"D","type":"bisector_foot","from":"A","of":"BC"}]}
+Tam giác ABC, O là tâm đường tròn ngoại tiếp ||| {"figure":"triangle","names":"ABC","extras":[{"name":"O","type":"circumcircle","of":"ABC"}]}
+Tam giác ABC, G là trọng tâm, H là trực tâm, O là tâm đường tròn ngoại tiếp ||| {"figure":"triangle","names":"ABC","extras":[{"name":"G","type":"centroid","of":"ABC"},{"name":"H","type":"orthocenter","of":"ABC"},{"name":"O","type":"circumcircle","of":"ABC"}]}
+Tam giác ABC, D là điểm đối xứng của A qua BC ||| {"figure":"triangle","names":"ABC","extras":[{"name":"D","type":"reflect","point":"A","over":"BC"}],"draw":["AD"]}
+Tam giác ABC, M là trung điểm BC, D đối xứng với A qua M ||| {"figure":"triangle","names":"ABC","extras":[{"name":"M","type":"midpoint","of":"BC"},{"name":"D","type":"reflect","point":"A","over":"M"}],"draw":["AD","BD","CD"]}
+Tam giác ABC, kéo dài AB một đoạn BE = AB ||| {"figure":"triangle","names":"ABC","extras":[{"name":"E","type":"extend","from":"A","through":"B","ratio":2}]}
+Tam giác ABC, lấy điểm D sao cho ABCD là hình bình hành ||| {"figure":"triangle","names":"ABC","extras":[{"name":"D","type":"parallelogram_vertex","of":"ABC"}],"draw":["CD","AD"]}
+Tam giác ABC, M thuộc cạnh BC sao cho BM = 2 ||| {"figure":"triangle","names":"ABC","extras":[{"name":"M","type":"on_segment","of":"BC","dist":2}]}
+Tam giác ABC có AB = 6, M thuộc AB với AM = 2 ||| {"figure":"triangle","names":"ABC","AB":6,"extras":[{"name":"M","type":"on_segment","of":"AB","dist":2}]}
+Tam giác ABC, D thuộc BC sao cho DB = 2DC ||| {"figure":"triangle","names":"ABC","extras":[{"name":"D","type":"on_segment","of":"BC","ratio":0.667}]}
+Tam giác ABC, E là trung điểm AB, F là trung điểm AC, M là trung điểm BC, EF cắt AM tại K ||| {"figure":"triangle","names":"ABC","extras":[{"name":"E","type":"midpoint","of":"AB"},{"name":"F","type":"midpoint","of":"AC"},{"name":"M","type":"midpoint","of":"BC"},{"name":"K","type":"intersection","of":["EF","AM"]}],"draw":["EF","AM"]}
+Tam giác ABC, D thuộc AB, E thuộc AC sao cho DE song song BC ||| {"figure":"triangle","names":"ABC","extras":[{"name":"D","type":"on_segment","of":"AB","ratio":0.4},{"name":"E","type":"on_segment","of":"AC","ratio":0.4}],"draw":["DE"]}
+Tam giác ABC, đường trung trực của AB cắt BC tại D ||| {"figure":"triangle","names":"ABC","extras":[{"type":"line","name":"d","perp_bisector_of":"AB"},{"name":"D","type":"intersection","of":["d","BC"]}]}
+## 5. Tứ giác
+Hình chữ nhật ABCD ||| {"figure":"rectangle","names":"ABCD"}
+Hình chữ nhật ABCD có AB = 6, AD = 4 ||| {"figure":"rectangle","names":"ABCD","AB":6,"AD":4}
+Hình chữ nhật ABCD, O là giao điểm hai đường chéo ||| {"figure":"rectangle","names":"ABCD","extras":[{"name":"O","type":"intersection","of":["AC","BD"]}],"draw":["AC","BD"]}
+Hình chữ nhật ABCD có AB = 8, BC = 6, vẽ đường chéo AC ||| {"figure":"rectangle","names":"ABCD","AB":8,"BC":6,"draw":["AC"]}
+Hình chữ nhật ABCD, M thuộc AB, N thuộc CD sao cho AM = CN ||| {"figure":"rectangle","names":"ABCD","extras":[{"name":"M","type":"on_segment","of":"AB","ratio":0.3},{"name":"N","type":"on_segment","of":"CD","ratio":0.3}],"draw":["MN"]}
+Hình vuông ABCD cạnh 4, O là tâm ||| {"figure":"square","names":"ABCD","side":4,"extras":[{"name":"O","type":"center_of","of":"ABCD"}]}
+Hình vuông ABCD có hai đường chéo cắt nhau tại O ||| {"figure":"square","names":"ABCD","extras":[{"name":"O","type":"intersection","of":["AC","BD"]}],"draw":["AC","BD"]}
+Hình vuông ABCD, M là trung điểm BC, N là trung điểm CD. Nối AM, AN ||| {"figure":"square","names":"ABCD","extras":[{"name":"M","type":"midpoint","of":"BC"},{"name":"N","type":"midpoint","of":"CD"}],"draw":["AM","AN"]}
+Hình bình hành ABCD, hai đường chéo cắt nhau tại O ||| {"figure":"parallelogram","names":"ABCD","extras":[{"name":"O","type":"intersection","of":["AC","BD"]}],"draw":["AC","BD"]}
+Hình bình hành ABCD có góc A = 60°, AB = 6, AD = 4 ||| {"figure":"parallelogram","names":"ABCD","AB":6,"AD":4,"angle":60}
+Hình bình hành ABCD, M là trung điểm BC, AM cắt BD tại E ||| {"figure":"parallelogram","names":"ABCD","extras":[{"name":"M","type":"midpoint","of":"BC"},{"name":"E","type":"intersection","of":["AM","BD"]}],"draw":["AM","BD"]}
+Hình thoi ABCD, hai đường chéo cắt nhau tại O ||| {"figure":"rhombus","names":"ABCD","extras":[{"name":"O","type":"intersection","of":["AC","BD"]}],"draw":["AC","BD"]}
+Hình thoi ABCD có góc A = 60°, cạnh 5 ||| {"figure":"rhombus","names":"ABCD","side":5,"angle":60}
+Hình thang ABCD (AB // CD), M, N là trung điểm AD, BC. Nối MN ||| {"figure":"trapezoid","names":"ABCD","extras":[{"name":"M","type":"midpoint","of":"AD"},{"name":"N","type":"midpoint","of":"BC"}],"draw":["MN"]}
+Hình thang ABCD (AB // CD), hai đường chéo cắt nhau tại O ||| {"figure":"trapezoid","names":"ABCD","extras":[{"name":"O","type":"intersection","of":["AC","BD"]}],"draw":["AC","BD"]}
+Hình thang cân ABCD (AB // CD), AB = 8, CD = 4, đường cao CH ||| {"figure":"isosceles_trapezoid","names":"ABCD","AB":8,"CD":4,"extras":[{"name":"H","type":"foot","from":"C","to":"AB"}]}
+Hình thang cân ABCD (AB // CD), hai đường chéo cắt nhau tại O ||| {"figure":"isosceles_trapezoid","names":"ABCD","extras":[{"name":"O","type":"intersection","of":["AC","BD"]}],"draw":["AC","BD"]}
+Hình thang vuông ABCD vuông tại A và D, BH vuông góc với CD tại H ||| {"figure":"right_trapezoid","names":"ABCD","extras":[{"name":"H","type":"foot","from":"B","to":"CD"}]}
+Hình diều ABCD (AB = AD, CB = CD) ||| {"figure":"kite","names":"ABCD"}
+Hình diều ABCD, hai đường chéo AC và BD ||| {"figure":"kite","names":"ABCD","draw":["AC","BD"]}
+Tứ giác ABCD ||| {"figure":"quadrilateral","names":"ABCD"}
+Tứ giác ABCD có hai đường chéo AC, BD cắt nhau tại O ||| {"figure":"quadrilateral","names":"ABCD","extras":[{"name":"O","type":"intersection","of":["AC","BD"]}],"draw":["AC","BD"]}
+Tứ giác ABCD, E, F, G, H lần lượt là trung điểm AB, BC, CD, DA. Nối EF, FG, GH, HE ||| {"figure":"quadrilateral","names":"ABCD","extras":[{"name":"E","type":"midpoint","of":"AB"},{"name":"F","type":"midpoint","of":"BC"},{"name":"G","type":"midpoint","of":"CD"},{"name":"H","type":"midpoint","of":"DA"}],"draw":["EF","FG","GH","HE"]}
+## 6. Đa giác đều
+Lục giác đều ABCDEF tâm O ||| {"figure":"regular_polygon","names":"ABCDEF","extras":[{"name":"O","type":"center_of","of":"ABCDEF"}]}
+Ngũ giác đều ABCDE cạnh 3 ||| {"figure":"regular_polygon","names":"ABCDE","side":3}
+Hình vuông ABCD nội tiếp đường tròn (O) ||| {"figure":"square","names":"ABCD","extras":[{"name":"O","type":"circumcircle","of":"ABC"}]}
+Tam giác đều ABC nội tiếp đường tròn (O) ||| {"figure":"equilateral_triangle","names":"ABC","extras":[{"name":"O","type":"circumcircle","of":"ABC"}]}
+Tam giác ABC nội tiếp đường tròn (O) ||| {"figure":"triangle","names":"ABC","extras":[{"name":"O","type":"circumcircle","of":"ABC"}]}
+## 7. Đường tròn cơ bản
+Đường tròn (O) ||| {"figure":"circle","center":"O"}
+Đường tròn (O; 3 cm) ||| {"figure":"circle","center":"O","r":3}
+Đường tròn tâm O, đường kính AB ||| {"figure":"circle","center":"O","diameter":["A","B"]}
+Đường tròn (O;R), ba điểm A, B, C thuộc (O;R) ||| {"figure":"circle","center":"O","on_circle":["A","B","C"]}
+Đường tròn (O), dây AB ||| {"figure":"circle","center":"O","on_circle":["A","B"],"draw":["AB"]}
+Đường tròn (O), dây AB, M là trung điểm AB, nối OM ||| {"figure":"circle","center":"O","on_circle":["A","B"],"extras":[{"name":"M","type":"midpoint","of":"AB"}],"draw":["AB","OM"],"marks":[{"type":"right_angle","at":"M","between":["O","A"]}]}
+Đường tròn (O), đường kính AB, C thuộc (O), nối AC, BC ||| {"figure":"circle","center":"O","diameter":["A","B"],"on_circle":["C"],"draw":["AC","BC"],"marks":[{"type":"right_angle","at":"C","between":["A","B"]}]}
+Nửa đường tròn tâm O đường kính AB ||| {"figure":"semicircle","center":"O","names":"AB"}
+Nửa đường tròn tâm O đường kính AB, C thuộc nửa đường tròn, nối AC, BC ||| {"figure":"semicircle","center":"O","names":"AB","on_circle":["C"],"draw":["AC","BC"]}
+Đường tròn (O;R), A thuộc (O), vẽ bán kính OA ||| {"figure":"circle","center":"O","on_circle":["A"],"draw":["OA"]}
+Cho đường tròn (O) và điểm M nằm trên (O) ||| {"figure":"circle","center":"O","on_circle":["M"]}
+Đường tròn (O) có bốn điểm A, B, C, D thuộc (O), nối AB, BC, CD, DA ||| {"figure":"circle","center":"O","on_circle":["A","B","C","D"],"draw":["AB","BC","CD","DA"]}
+## 8. Đường tròn ngoại tiếp, nội tiếp
+Tứ giác ABCD nội tiếp đường tròn (O) ||| {"figure":"circle","center":"O","on_circle":["A","B","C","D"],"draw":["AB","BC","CD","DA"]}
+Tứ giác ABCD nội tiếp (O), hai đường chéo AC, BD cắt nhau tại I ||| {"figure":"circle","center":"O","on_circle":["A","B","C","D"],"extras":[{"name":"I","type":"intersection","of":["AC","BD"]}],"draw":["AB","BC","CD","DA","AC","BD"]}
+Tam giác ABC nội tiếp (O), AD là đường kính ||| {"figure":"triangle","names":"ABC","extras":[{"name":"O","type":"circumcircle","of":"ABC"},{"name":"D","type":"reflect","point":"A","over":"O"}],"draw":["AD"]}
+Cho (O) đường kính AB, C thuộc (O), CH vuông góc AB tại H ||| {"figure":"circle","center":"O","diameter":["A","B"],"on_circle":["C"],"extras":[{"name":"H","type":"foot","from":"C","to":"AB"}],"draw":["AC","BC"]}
+Tam giác ABC nhọn nội tiếp (O), các đường cao BD, CE cắt nhau tại H ||| {"figure":"triangle","names":"ABC","extras":[{"name":"O","type":"circumcircle","of":"ABC"},{"name":"D","type":"foot","from":"B","to":"AC"},{"name":"E","type":"foot","from":"C","to":"AB"},{"name":"H","type":"intersection","of":["BD","CE"]}]}
+Tam giác ABC, đường tròn nội tiếp (I), đường tròn ngoại tiếp (O) ||| {"figure":"triangle","names":"ABC","extras":[{"name":"O","type":"circumcircle","of":"ABC"},{"name":"I","type":"incircle","of":"ABC"}]}
+Tam giác ABC, D thuộc đường tròn ngoại tiếp (O), nối AD ||| {"figure":"triangle","names":"ABC","extras":[{"name":"O","type":"circumcircle","of":"ABC"},{"name":"D","type":"on_circle","of":"O"}],"draw":["AD"]}
+## 9. Tiếp tuyến, cát tuyến
+Từ điểm M nằm ngoài đường tròn (O) kẻ hai tiếp tuyến MA, MB ||| {"figure":"circle","center":"O","extras":[{"type":"tangents","from":"M","of":"O","names":["A","B"]}]}
+Từ M ngoài (O;R) kẻ hai tiếp tuyến MA, MB (A, B là tiếp điểm), OM cắt AB tại H ||| {"figure":"circle","center":"O","extras":[{"type":"tangents","from":"M","of":"O","names":["A","B"]},{"name":"H","type":"intersection","of":["OM","AB"]}],"draw":["OA","OB","OM","AB"]}
+Từ M ngoài (O) kẻ tiếp tuyến MA và cát tuyến MBC ||| {"figure":"circle","center":"O","extras":[{"type":"tangents","from":"M","of":"O","names":["A"]},{"type":"secant","from":"M","of":"O","names":["B","C"]}]}
+Từ A nằm ngoài (O) kẻ cát tuyến ABC (B nằm giữa A và C) ||| {"figure":"circle","center":"O","extras":[{"type":"secant","from":"A","of":"O","names":["B","C"]}]}
+Đường thẳng d tiếp xúc với đường tròn (O) tại A ||| {"figure":"circle","center":"O","on_circle":["A"],"extras":[{"type":"line","name":"d","tangent_at":"A","of":"O"}]}
+Tiếp tuyến tại A và B của (O) cắt nhau tại M ||| {"figure":"circle","center":"O","on_circle":["A","B"],"extras":[{"type":"line","name":"a","tangent_at":"A","of":"O"},{"type":"line","name":"b","tangent_at":"B","of":"O"},{"name":"M","type":"intersection","of":["a","b"]}]}
+Đường tròn (O) đường kính AB, các tiếp tuyến Ax và By của (O) ||| {"figure":"circle","center":"O","diameter":["A","B"],"extras":[{"type":"line","name":"x","tangent_at":"A","of":"O"},{"type":"line","name":"y","tangent_at":"B","of":"O"}]}
+## 10. Hai đường tròn
+Hai đường tròn (O) và (O') cắt nhau tại A, B ||| {"figure":"two_circles","centers":["O","O'"],"relation":"intersect","common":["A","B"],"draw":["AB"]}
+Hai đường tròn (O;R) và (O';R') tiếp xúc ngoài tại A ||| {"figure":"two_circles","centers":["O","O'"],"relation":"tangent_external","common":["A"]}
+Hai đường tròn (O) và (O') tiếp xúc trong tại T ||| {"figure":"two_circles","centers":["O","O'"],"relation":"tangent_internal","common":["T"]}
+Hai đường tròn (O) và (O') ở ngoài nhau ||| {"figure":"two_circles","centers":["O","O'"],"relation":"outside"}
+Đường tròn (O') nằm trong đường tròn (O) ||| {"figure":"two_circles","centers":["O","O'"],"relation":"inside"}
+Hai đường tròn (O; 3) và (O'; 2) cắt nhau tại A, B, nối OO' ||| {"figure":"two_circles","centers":["O","O'"],"relation":"intersect","r1":3,"r2":2,"common":["A","B"],"draw":["OO'"]}
+## 11. Đường thẳng, song song, vuông góc
+Cho đường thẳng d, điểm A thuộc d, điểm B không thuộc d ||| {"figure":"none","extras":[{"type":"line","name":"d"},{"name":"A","type":"on_line","of":"d"},{"name":"B","type":"off_line","of":"d"}]}
+Qua điểm M không thuộc đường thẳng d, kẻ đường thẳng a song song với d ||| {"figure":"none","extras":[{"type":"line","name":"d"},{"name":"M","type":"off_line","of":"d"},{"type":"line","name":"a","through":"M","parallel_to":"d"}]}
+Qua điểm M không thuộc đường thẳng d, kẻ đường thẳng b vuông góc với d ||| {"figure":"none","extras":[{"type":"line","name":"d"},{"name":"M","type":"off_line","of":"d"},{"type":"line","name":"b","through":"M","perpendicular_to":"d"}]}
+Cho hai điểm A, B và đường thẳng AB ||| {"figure":"none","extras":[{"type":"line","name":"d"},{"name":"A","type":"on_line","of":"d"},{"name":"B","type":"on_line","of":"d"}]}
+Cho đường thẳng d và ba điểm A, B, C thuộc d ||| {"figure":"none","extras":[{"type":"line","name":"d"},{"name":"A","type":"on_line","of":"d"},{"name":"B","type":"on_line","of":"d"},{"name":"C","type":"on_line","of":"d"}]}
+Tam giác ABC, tia Ax đi qua trung điểm M của BC ||| {"figure":"triangle","names":"ABC","extras":[{"name":"M","type":"midpoint","of":"BC"},{"type":"ray","name":"x","from":"A","through":"M"}]}
+Tam giác ABC, đường thẳng d đi qua A và B ||| {"figure":"triangle","names":"ABC","extras":[{"type":"line","name":"d","through":["A","B"]}]}
+## 12. Đánh dấu, tô màu, nét đứt, vectơ
+Tam giác ABC, M là trung điểm BC, đánh dấu BM = MC ||| {"figure":"triangle","names":"ABC","extras":[{"name":"M","type":"midpoint","of":"BC"}],"marks":[{"type":"equal_sides","sides":["BM","MC"],"ticks":1}]}
+Tam giác ABC, vẽ cạnh BC bằng nét đứt ||| {"figure":"triangle","names":"ABC","dashed":["BC"]}
+Tam giác ABC, tô màu tam giác ABC ||| {"figure":"triangle","names":"ABC","fill":[["A","B","C"]]}
+Hình chữ nhật ABCD, tô màu xanh tam giác ABC ||| {"figure":"rectangle","names":"ABCD","fill":[{"points":["A","B","C"],"color":"lightblue"}]}
+Hình bình hành ABCD, vectơ AB, AD và AC ||| {"figure":"parallelogram","names":"ABCD","vectors":[["A","B"],["A","D"],["A","C"]]}
+Tam giác ABC có BC = a, CA = b, AB = c ||| {"figure":"triangle","names":"ABC","side_labels":{"BC":"a","CA":"b","AB":"c"}}
+Tam giác ABC có góc A = α ||| {"figure":"triangle","names":"ABC","marks":[{"type":"angle","at":"A","between":["B","C"],"label":"α"}]}
+Tam giác ABC có AB = AC ||| {"figure":"triangle","names":"ABC","marks":[{"type":"equal_sides","sides":["AB","AC"],"ticks":1}]}
+Tam giác ABC, M, N là trung điểm AB, AC. Chứng minh MN song song BC ||| {"figure":"triangle","names":"ABC","extras":[{"name":"M","type":"midpoint","of":"AB"},{"name":"N","type":"midpoint","of":"AC"}],"draw":["MN"],"marks":[{"type":"equal_sides","sides":["AM","MB"],"ticks":1},{"type":"equal_sides","sides":["AN","NC"],"ticks":2}]}
+Tam giác ABC vuông tại A, đánh dấu góc vuông tại A ||| {"figure":"right_triangle","names":"ABC","right_at":"A","marks":[{"type":"right_angle","at":"A","between":["B","C"]}]}
+## 13. Toạ độ Oxy và đồ thị hàm số
+Trong mặt phẳng Oxy cho hai điểm A(1; 2), B(3; -1) ||| {"figure":"coordinate","points":{"A":[1,2],"B":[3,-1]}}
+Trong mặt phẳng Oxy cho A(1; 2), B(3; -1), nối AB ||| {"figure":"coordinate","points":{"A":[1,2],"B":[3,-1]},"draw":["AB"]}
+Trong mặt phẳng Oxy cho tam giác ABC có A(0; 0), B(4; 0), C(1; 3) ||| {"figure":"coordinate","points":{"A":[0,0],"B":[4,0],"C":[1,3]},"draw":["AB","BC","CA"]}
+Trong mặt phẳng Oxy cho A(-2; 1), B(2; 3), C(4; -1), D(0; -3) ||| {"figure":"coordinate","points":{"A":[-2,1],"B":[2,3],"C":[4,-1],"D":[0,-3]},"draw":["AB","BC","CD","DA"]}
+Trong mặt phẳng Oxy cho A(1; 2), B(3; 5), vẽ vectơ AB ||| {"figure":"coordinate","points":{"A":[1,2],"B":[3,5]},"vectors":[["A","B"]]}
+Vẽ đồ thị hàm số y = 2x + 1 ||| {"figure":"coordinate","graphs":[{"kind":"linear","a":2,"b":1,"name":"d"}]}
+Vẽ đồ thị hàm số y = x² ||| {"figure":"coordinate","graphs":[{"kind":"quadratic","a":1,"b":0,"c":0,"name":"P"}]}
+Vẽ đồ thị hàm số y = -x² + 2 ||| {"figure":"coordinate","graphs":[{"kind":"quadratic","a":-1,"b":0,"c":2,"name":"P"}]}
+Vẽ đồ thị hàm số y = 0,5x² ||| {"figure":"coordinate","graphs":[{"kind":"quadratic","a":0.5,"b":0,"c":0,"name":"P"}]}
+Vẽ (P): y = x² và (d): y = x + 2 trên cùng mặt phẳng toạ độ, tìm giao điểm A, B ||| {"figure":"coordinate","graphs":[{"kind":"quadratic","a":1,"b":0,"c":0,"name":"P"},{"kind":"linear","a":1,"b":2,"name":"d"}],"extras":[{"type":"graph_intersection","of":["P","d"],"names":["A","B"]}]}
+Vẽ hai đường thẳng (d1): y = x + 1 và (d2): y = -x + 3, giao điểm M ||| {"figure":"coordinate","graphs":[{"kind":"linear","a":1,"b":1,"name":"d1"},{"kind":"linear","a":-1,"b":3,"name":"d2"}],"extras":[{"type":"graph_intersection","of":["d1","d2"],"names":["M"]}]}
+Vẽ đường thẳng x = 2 và đường thẳng y = 3 ||| {"figure":"coordinate","graphs":[{"kind":"vertical","x":2,"name":"a"},{"kind":"horizontal","y":3,"name":"b"}]}
+Đồ thị hàm số y = 2x - 3 đi qua điểm A(2; 1) ||| {"figure":"coordinate","points":{"A":[2,1]},"graphs":[{"kind":"linear","a":2,"b":-3,"name":"d"}]}
+## 14. Hình không gian
+Hình lập phương ABCD.A'B'C'D' ||| {"figure":"cube","names":"ABCD.A'B'C'D'"}
+Hình lập phương ABCD.A'B'C'D' cạnh 3 ||| {"figure":"cube","names":"ABCD.A'B'C'D'","side":3}
+Hình hộp chữ nhật ABCD.A'B'C'D' ||| {"figure":"prism","names":"ABCD.A'B'C'D'"}
+Hình hộp chữ nhật ABCD.A'B'C'D' có AB = 4, AD = 3, AA' = 5 ||| {"figure":"prism","names":"ABCD.A'B'C'D'","AB":4,"AD":3,"AA'":5}
+Lăng trụ tam giác ABC.A'B'C' ||| {"figure":"prism","names":"ABC.A'B'C'"}
+Lăng trụ tam giác ABC.A'B'C', M là trung điểm BC ||| {"figure":"prism","names":"ABC.A'B'C'","extras":[{"name":"M","type":"midpoint","of":"BC"}]}
+Hình chóp S.ABCD có đáy ABCD là hình chữ nhật ||| {"figure":"pyramid","names":"S.ABCD"}
+Hình chóp S.ABCD có đáy là hình vuông cạnh a, SA vuông góc với đáy ||| {"figure":"pyramid","names":"S.ABCD","base":"square","apex_over":"A","side_labels":{"AB":"a"}}
+Hình chóp S.ABCD đáy là hình vuông, SA = 4 và SA vuông góc đáy ||| {"figure":"pyramid","names":"S.ABCD","base":"square","apex_over":"A","SA":4}
+Hình chóp S.ABCD, O là giao điểm của AC và BD, SO vuông góc với đáy ||| {"figure":"pyramid","names":"S.ABCD","extras":[{"name":"O","type":"intersection","of":["AC","BD"]}],"draw":["SO"]}
+Hình chóp S.ABC có đáy ABC là tam giác ||| {"figure":"pyramid","names":"S.ABC"}
+Hình chóp S.ABC, M là trung điểm SA, nối MB, MC ||| {"figure":"pyramid","names":"S.ABC","extras":[{"name":"M","type":"midpoint","of":"SA"}],"draw":["MB","MC"]}
+Hình chóp S.ABCD, M là trung điểm SC, nối BM, DM ||| {"figure":"pyramid","names":"S.ABCD","extras":[{"name":"M","type":"midpoint","of":"SC"}],"draw":["BM","DM"]}
+Tứ diện ABCD ||| {"figure":"tetrahedron","names":"ABCD"}
+Tứ diện ABCD, M là trung điểm AB, N là trung điểm CD, nối MN ||| {"figure":"tetrahedron","names":"ABCD","extras":[{"name":"M","type":"midpoint","of":"AB"},{"name":"N","type":"midpoint","of":"CD"}],"draw":["MN"]}
+## 15. Đề ghép kiểu đề thi
+Cho tam giác ABC vuông tại A (AB < AC), đường cao AH. Gọi M là trung điểm BC, nối AM ||| {"figure":"right_triangle","names":"ABC","right_at":"A","extras":[{"name":"H","type":"foot","from":"A","to":"BC"},{"name":"M","type":"midpoint","of":"BC"}],"draw":["AM"]}
+Cho đường tròn (O) đường kính AB, C thuộc (O). Kẻ CH vuông góc AB tại H. Tiếp tuyến tại A cắt BC tại D ||| {"figure":"circle","center":"O","diameter":["A","B"],"on_circle":["C"],"extras":[{"name":"H","type":"foot","from":"C","to":"AB"},{"type":"line","name":"t","tangent_at":"A","of":"O"},{"name":"D","type":"intersection","of":["t","BC"]}],"draw":["AC","BD"]}
+Cho hình vuông ABCD, M thuộc BC. AM cắt CD tại N ||| {"figure":"square","names":"ABCD","extras":[{"name":"M","type":"on_segment","of":"BC","ratio":0.4},{"name":"N","type":"intersection","of":["AM","CD"]}],"draw":["AN"]}
+Cho hình vuông ABCD, M thuộc BC, N thuộc CD sao cho góc MAN = 45°. Nối MN ||| {"figure":"square","names":"ABCD","extras":[{"name":"M","type":"on_segment","of":"BC","ratio":0.4},{"name":"N","type":"on_segment","of":"CD","angle":{"vertex":"A","other":"M","value":45}}],"draw":["MN"]}
+Cho hình bình hành ABCD, M là trung điểm CD, AM cắt BD tại N ||| {"figure":"parallelogram","names":"ABCD","extras":[{"name":"M","type":"midpoint","of":"CD"},{"name":"N","type":"intersection","of":["AM","BD"]}],"draw":["AM","BD"]}
+Cho tam giác ABC có AD là phân giác, kẻ DE song song AB (E thuộc AC) ||| {"figure":"triangle","names":"ABC","extras":[{"name":"D","type":"bisector_foot","from":"A","of":"BC"},{"type":"line","name":"d","through":"D","parallel_to":"AB"},{"name":"E","type":"intersection","of":["d","AC"]}],"draw":["DE"]}
+Cho đường tròn (O;R), điểm A nằm ngoài (O). Kẻ tiếp tuyến AB (B là tiếp điểm) và cát tuyến ACD ||| {"figure":"circle","center":"O","extras":[{"type":"tangents","from":"A","of":"O","names":["B"]},{"type":"secant","from":"A","of":"O","names":["C","D"]}]}
+Cho tam giác ABC vuông tại A, đường tròn đường kính AB cắt BC tại D ||| {"figure":"right_triangle","names":"ABC","right_at":"A","extras":[{"type":"circle","center":"O","diameter":["A","B"]},{"name":"D","type":"foot","from":"A","to":"BC"}],"draw":["AD"]}
+Cho (O) đường kính AB, dây CD vuông góc với AB tại H ||| {"figure":"circle","center":"O","diameter":["A","B"],"on_circle":["C"],"extras":[{"name":"D","type":"reflect","point":"C","over":"AB"},{"name":"H","type":"foot","from":"C","to":"AB"}],"draw":["CD"]}
+## 16. Cách diễn đạt khác
+tam giac ABC vuong tai A ||| {"figure":"right_triangle","names":"ABC","right_at":"A"}
+hcn ABCD ||| {"figure":"rectangle","names":"ABCD"}
+Cho ΔABC cân tại A ||| {"figure":"isosceles_triangle","names":"ABC","apex":"A"}
+Right triangle ABC with the right angle at B ||| {"figure":"right_triangle","names":"ABC","right_at":"B"}
+Isosceles triangle ABC with AB = AC ||| {"figure":"isosceles_triangle","names":"ABC","apex":"A"}
+Square ABCD with side 4 ||| {"figure":"square","names":"ABCD","side":4}
+Rectangle ABCD, AB = 5, BC = 3 ||| {"figure":"rectangle","names":"ABCD","AB":5,"BC":3}
+Circle with center O and radius 3 ||| {"figure":"circle","center":"O","r":3}
+Vẽ giúp mình hình thoi ABCD ||| {"figure":"rhombus","names":"ABCD"}
+ABCD là hình chữ nhật có AB = 5, AD = 3 ||| {"figure":"rectangle","names":"ABCD","AB":5,"AD":3}
+Cho tam giác ABC với M là trung điểm của cạnh BC ||| {"figure":"triangle","names":"ABC","extras":[{"name":"M","type":"midpoint","of":"BC"}]}
+△ABC vuông tại A có AB = 3 cm, AC = 4 cm ||| {"figure":"right_triangle","names":"ABC","right_at":"A","AB":3,"AC":4}

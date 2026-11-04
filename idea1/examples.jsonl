@@ -39,5 +39,187 @@
 {"problem": "Tam giác PQR, I thuộc PQ, K thuộc PR, đường thẳng d đi qua I và K", "output": {"figure": "triangle", "names": "PQR", "extras": [{"name": "I", "type": "on_segment", "of": "PQ"}, {"name": "K", "type": "on_segment", "of": "PR"}, {"type": "line", "name": "d", "through": ["I", "K"]}]}}
 {"problem": "Đường thẳng m cắt đường tròn (S;R) tại U và V", "output": {"figure": "circle", "center": "S", "on_circle": ["U", "V"], "extras": [{"type": "line", "name": "m", "through": ["U", "V"]}]}}
 {"problem": "Tiếp tuyến tại M của đường tròn (I;R)", "output": {"figure": "circle", "center": "I", "on_circle": ["M"], "extras": [{"type": "line", "name": "t", "tangent_at": "M", "of": "I"}]}}
-{"problem":"Trong hình vuông ABCD, AC và BD cắt nhau tại O. M thuộc BC, N thuộc CD. AM cắt BD tại E, AN cắt BD tại F. Nối FM và MN, biết góc MAN bằng 45 độ.","output":{"figure":"square","names":"ABCD","extras":[{"name":"M","type":"on_segment","of":"BC","ratio":0.4},{"name":"N","type":"on_segment","of":"CD","ratio":0.57},{"name":"O","type":"intersection","of":["AC","BD"]},{"name":"E","type":"intersection","of":["AM","BD"]},{"name":"F","type":"intersection","of":["AN","BD"]}],"draw":["AC","BD","AM","AN","FM","MN"]}}
-{"problem":"Tam giác ABC, G là trọng tâm, I là tâm đường tròn nội tiếp, O là tâm đường tròn ngoại tiếp, H là trực tâm","output":{"figure":"triangle","names":"ABC","extras":[{"name":"G","type":"centroid","of":"ABC"},{"name":"I","type":"incenter","of":"ABC"},{"name":"O","type":"circumcircle","of":"ABC"},{"name":"H","type":"orthocenter","of":"ABC"}]}}
+{"problem": "Trong hình vuông ABCD, AC và BD cắt nhau tại O. M thuộc BC, N thuộc CD. AM cắt BD tại E, AN cắt BD tại F. Nối FM và MN, biết góc MAN bằng 45 độ.", "output": {"figure": "square", "names": "ABCD", "extras": [{"name": "M", "type": "on_segment", "of": "BC", "ratio": 0.4}, {"name": "N", "type": "on_segment", "of": "CD", "ratio": 0.57}, {"name": "O", "type": "intersection", "of": ["AC", "BD"]}, {"name": "E", "type": "intersection", "of": ["AM", "BD"]}, {"name": "F", "type": "intersection", "of": ["AN", "BD"]}], "draw": ["AC", "BD", "AM", "AN", "FM", "MN"]}}
+{"problem": "Tam giác ABC, G là trọng tâm, I là tâm đường tròn nội tiếp, O là tâm đường tròn ngoại tiếp, H là trực tâm", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "G", "type": "centroid", "of": "ABC"}, {"name": "I", "type": "incenter", "of": "ABC"}, {"name": "O", "type": "circumcircle", "of": "ABC"}, {"name": "H", "type": "orthocenter", "of": "ABC"}]}}
+{"problem": "Tam giác ABC", "output": {"figure": "triangle", "names": "ABC"}}
+{"problem": "Cho tam giác MNP", "output": {"figure": "triangle", "names": "MNP"}}
+{"problem": "Tam giác ABC nhọn", "output": {"figure": "triangle", "names": "ABC"}}
+{"problem": "Tam giác ABC tù tại A", "output": {"figure": "triangle", "names": "ABC", "kind": "obtuse"}}
+{"problem": "Cho tam giác MNP có góc M tù", "output": {"figure": "triangle", "names": "MNP", "kind": "obtuse"}}
+{"problem": "Tam giác ABC có AB = 5 cm, AC = 7 cm, BC = 6 cm", "output": {"figure": "triangle", "names": "ABC", "AB": 5, "AC": 7, "BC": 6}}
+{"problem": "Cho tam giác DEF có DE = 4, EF = 5, DF = 6", "output": {"figure": "triangle", "names": "DEF", "DE": 4, "EF": 5, "DF": 6}}
+{"problem": "Tam giác ABC có góc A = 50°, AB = 5, AC = 4", "output": {"figure": "triangle", "names": "ABC", "AB": 5, "AC": 4, "angle_A": 50}}
+{"problem": "Tam giác ABC có góc B = 40 độ, góc C = 70 độ", "output": {"figure": "triangle", "names": "ABC", "angle_B": 40, "angle_C": 70}}
+{"problem": "Tam giác ABC có góc A = 60°, góc B = 45°, AB = 8", "output": {"figure": "triangle", "names": "ABC", "AB": 8, "angle_A": 60, "angle_B": 45}}
+{"problem": "Tam giác MNP có MN = 6, góc M = 30°", "output": {"figure": "triangle", "names": "MNP", "MN": 6, "angle_M": 30}}
+{"problem": "tam giac ABC co AB = 3, AC = 4", "output": {"figure": "triangle", "names": "ABC", "AB": 3, "AC": 4}}
+{"problem": "Triangle ABC with AB = 6 and AC = 8", "output": {"figure": "triangle", "names": "ABC", "AB": 6, "AC": 8}}
+{"problem": "Cho △MNP có MN = 3, NP = 4, MP = 5", "output": {"figure": "triangle", "names": "MNP", "MN": 3, "NP": 4, "MP": 5}}
+{"problem": "Tam giác ABC vuông tại A", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A"}}
+{"problem": "Tam giác ABC vuông tại A, AB = 6, AC = 8", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "AB": 6, "AC": 8}}
+{"problem": "Tam giác ABC vuông tại B, AB = 3, BC = 4", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "B", "AB": 3, "BC": 4}}
+{"problem": "Tam giác DEF vuông tại E, DE = 5, DF = 13", "output": {"figure": "right_triangle", "names": "DEF", "right_at": "E", "DE": 5, "DF": 13}}
+{"problem": "Tam giác ABC vuông tại A, góc B = 30 độ", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "angle_B": 30}}
+{"problem": "Tam giác ABC vuông tại A có AB = 4, góc C = 60°", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "AB": 4, "angle_C": 60}}
+{"problem": "Tam giác ABC vuông cân tại A", "output": {"figure": "right_isosceles_triangle", "names": "ABC", "right_at": "A"}}
+{"problem": "Tam giác ABC vuông cân tại A, AB = 5", "output": {"figure": "right_isosceles_triangle", "names": "ABC", "right_at": "A", "AB": 5}}
+{"problem": "Tam giác ABC vuông tại A, đường cao AH", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "extras": [{"name": "H", "type": "foot", "from": "A", "to": "BC"}]}}
+{"problem": "Tam giác ABC vuông tại A, AB = 3, AC = 4, đường cao AH", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "AB": 3, "AC": 4, "extras": [{"name": "H", "type": "foot", "from": "A", "to": "BC"}]}}
+{"problem": "Tam giác ABC vuông tại A, M là trung điểm BC, nối AM", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "extras": [{"name": "M", "type": "midpoint", "of": "BC"}], "draw": ["AM"]}}
+{"problem": "Tam giác ABC vuông tại A, đường cao AH, M là trung điểm BC", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "extras": [{"name": "H", "type": "foot", "from": "A", "to": "BC"}, {"name": "M", "type": "midpoint", "of": "BC"}], "draw": ["AM"]}}
+{"problem": "Tam giác ABC vuông tại A, AD là phân giác (D thuộc BC)", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "extras": [{"name": "D", "type": "bisector_foot", "from": "A", "of": "BC"}]}}
+{"problem": "Tam giác ABC vuông tại A, O là tâm đường tròn ngoại tiếp", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "extras": [{"name": "O", "type": "circumcircle", "of": "ABC"}]}}
+{"problem": "Tam giác ABC vuông tại A, đường tròn đường kính BC tâm O", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "extras": [{"type": "circle", "center": "O", "diameter": ["B", "C"]}]}}
+{"problem": "Tam giác ABC cân tại A", "output": {"figure": "isosceles_triangle", "names": "ABC", "apex": "A"}}
+{"problem": "Tam giác ABC cân tại A, AB = AC = 5, BC = 6", "output": {"figure": "isosceles_triangle", "names": "ABC", "apex": "A", "AB": 5, "AC": 5, "BC": 6}}
+{"problem": "Tam giác ABC cân tại A có góc A = 40°", "output": {"figure": "isosceles_triangle", "names": "ABC", "apex": "A", "angle_A": 40}}
+{"problem": "Tam giác ABC cân tại A có góc B = 70°", "output": {"figure": "isosceles_triangle", "names": "ABC", "apex": "A", "angle_B": 70}}
+{"problem": "Tam giác ABC cân tại A, M là trung điểm BC", "output": {"figure": "isosceles_triangle", "names": "ABC", "apex": "A", "extras": [{"name": "M", "type": "midpoint", "of": "BC"}], "draw": ["AM"]}}
+{"problem": "Tam giác ABC cân tại A, các đường cao BD và CE", "output": {"figure": "isosceles_triangle", "names": "ABC", "apex": "A", "extras": [{"name": "D", "type": "foot", "from": "B", "to": "AC"}, {"name": "E", "type": "foot", "from": "C", "to": "AB"}]}}
+{"problem": "Tam giác đều ABC cạnh a", "output": {"figure": "equilateral_triangle", "names": "ABC", "side_labels": {"AB": "a"}}}
+{"problem": "Tam giác đều ABC, G là trọng tâm", "output": {"figure": "equilateral_triangle", "names": "ABC", "extras": [{"name": "G", "type": "centroid", "of": "ABC"}]}}
+{"problem": "Tam giác đều ABC cạnh 6, đường cao AH", "output": {"figure": "equilateral_triangle", "names": "ABC", "side": 6, "extras": [{"name": "H", "type": "foot", "from": "A", "to": "BC"}]}}
+{"problem": "Tam giác ABC, M là trung điểm BC, N là trung điểm AC. Nối MN", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "M", "type": "midpoint", "of": "BC"}, {"name": "N", "type": "midpoint", "of": "AC"}], "draw": ["MN"]}}
+{"problem": "Tam giác ABC có hai đường trung tuyến AM và BN cắt nhau tại G", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "M", "type": "midpoint", "of": "BC"}, {"name": "N", "type": "midpoint", "of": "AC"}, {"name": "G", "type": "intersection", "of": ["AM", "BN"]}], "draw": ["AM", "BN"]}}
+{"problem": "Tam giác ABC có ba đường cao AD, BE, CF cắt nhau tại H", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "H", "type": "orthocenter", "of": "ABC", "feet": ["D", "E", "F"]}]}}
+{"problem": "Tam giác ABC có đường tròn nội tiếp (I) tiếp xúc BC, CA, AB lần lượt tại D, E, F", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "I", "type": "incircle", "of": "ABC", "touch": ["D", "E", "F"]}]}}
+{"problem": "Tam giác ABC, I là tâm đường tròn nội tiếp", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "I", "type": "incircle", "of": "ABC"}]}}
+{"problem": "Tam giác ABC, AD là phân giác trong (D thuộc BC)", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "D", "type": "bisector_foot", "from": "A", "of": "BC"}]}}
+{"problem": "Tam giác ABC, O là tâm đường tròn ngoại tiếp", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "O", "type": "circumcircle", "of": "ABC"}]}}
+{"problem": "Tam giác ABC, G là trọng tâm, H là trực tâm, O là tâm đường tròn ngoại tiếp", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "G", "type": "centroid", "of": "ABC"}, {"name": "H", "type": "orthocenter", "of": "ABC"}, {"name": "O", "type": "circumcircle", "of": "ABC"}]}}
+{"problem": "Tam giác ABC, D là điểm đối xứng của A qua BC", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "D", "type": "reflect", "point": "A", "over": "BC"}], "draw": ["AD"]}}
+{"problem": "Tam giác ABC, M là trung điểm BC, D đối xứng với A qua M", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "M", "type": "midpoint", "of": "BC"}, {"name": "D", "type": "reflect", "point": "A", "over": "M"}], "draw": ["AD", "BD", "CD"]}}
+{"problem": "Tam giác ABC, kéo dài AB một đoạn BE = AB", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "E", "type": "extend", "from": "A", "through": "B", "ratio": 2}]}}
+{"problem": "Tam giác ABC, lấy điểm D sao cho ABCD là hình bình hành", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "D", "type": "parallelogram_vertex", "of": "ABC"}], "draw": ["CD", "AD"]}}
+{"problem": "Tam giác ABC, M thuộc cạnh BC sao cho BM = 2", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "M", "type": "on_segment", "of": "BC", "dist": 2}]}}
+{"problem": "Tam giác ABC có AB = 6, M thuộc AB với AM = 2", "output": {"figure": "triangle", "names": "ABC", "AB": 6, "extras": [{"name": "M", "type": "on_segment", "of": "AB", "dist": 2}]}}
+{"problem": "Tam giác ABC, D thuộc BC sao cho DB = 2DC", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "D", "type": "on_segment", "of": "BC", "ratio": 0.667}]}}
+{"problem": "Tam giác ABC, E là trung điểm AB, F là trung điểm AC, M là trung điểm BC, EF cắt AM tại K", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "E", "type": "midpoint", "of": "AB"}, {"name": "F", "type": "midpoint", "of": "AC"}, {"name": "M", "type": "midpoint", "of": "BC"}, {"name": "K", "type": "intersection", "of": ["EF", "AM"]}], "draw": ["EF", "AM"]}}
+{"problem": "Tam giác ABC, D thuộc AB, E thuộc AC sao cho DE song song BC", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "D", "type": "on_segment", "of": "AB", "ratio": 0.4}, {"name": "E", "type": "on_segment", "of": "AC", "ratio": 0.4}], "draw": ["DE"]}}
+{"problem": "Tam giác ABC, đường trung trực của AB cắt BC tại D", "output": {"figure": "triangle", "names": "ABC", "extras": [{"type": "line", "name": "d", "perp_bisector_of": "AB"}, {"name": "D", "type": "intersection", "of": ["d", "BC"]}]}}
+{"problem": "Hình chữ nhật ABCD", "output": {"figure": "rectangle", "names": "ABCD"}}
+{"problem": "Hình chữ nhật ABCD có AB = 6, AD = 4", "output": {"figure": "rectangle", "names": "ABCD", "AB": 6, "AD": 4}}
+{"problem": "Hình chữ nhật ABCD, O là giao điểm hai đường chéo", "output": {"figure": "rectangle", "names": "ABCD", "extras": [{"name": "O", "type": "intersection", "of": ["AC", "BD"]}], "draw": ["AC", "BD"]}}
+{"problem": "Hình chữ nhật ABCD có AB = 8, BC = 6, vẽ đường chéo AC", "output": {"figure": "rectangle", "names": "ABCD", "AB": 8, "BC": 6, "draw": ["AC"]}}
+{"problem": "Hình chữ nhật ABCD, M thuộc AB, N thuộc CD sao cho AM = CN", "output": {"figure": "rectangle", "names": "ABCD", "extras": [{"name": "M", "type": "on_segment", "of": "AB", "ratio": 0.3}, {"name": "N", "type": "on_segment", "of": "CD", "ratio": 0.3}], "draw": ["MN"]}}
+{"problem": "Hình vuông ABCD cạnh 4, O là tâm", "output": {"figure": "square", "names": "ABCD", "side": 4, "extras": [{"name": "O", "type": "center_of", "of": "ABCD"}]}}
+{"problem": "Hình vuông ABCD có hai đường chéo cắt nhau tại O", "output": {"figure": "square", "names": "ABCD", "extras": [{"name": "O", "type": "intersection", "of": ["AC", "BD"]}], "draw": ["AC", "BD"]}}
+{"problem": "Hình vuông ABCD, M là trung điểm BC, N là trung điểm CD. Nối AM, AN", "output": {"figure": "square", "names": "ABCD", "extras": [{"name": "M", "type": "midpoint", "of": "BC"}, {"name": "N", "type": "midpoint", "of": "CD"}], "draw": ["AM", "AN"]}}
+{"problem": "Hình bình hành ABCD, hai đường chéo cắt nhau tại O", "output": {"figure": "parallelogram", "names": "ABCD", "extras": [{"name": "O", "type": "intersection", "of": ["AC", "BD"]}], "draw": ["AC", "BD"]}}
+{"problem": "Hình bình hành ABCD có góc A = 60°, AB = 6, AD = 4", "output": {"figure": "parallelogram", "names": "ABCD", "AB": 6, "AD": 4, "angle": 60}}
+{"problem": "Hình bình hành ABCD, M là trung điểm BC, AM cắt BD tại E", "output": {"figure": "parallelogram", "names": "ABCD", "extras": [{"name": "M", "type": "midpoint", "of": "BC"}, {"name": "E", "type": "intersection", "of": ["AM", "BD"]}], "draw": ["AM", "BD"]}}
+{"problem": "Hình thoi ABCD, hai đường chéo cắt nhau tại O", "output": {"figure": "rhombus", "names": "ABCD", "extras": [{"name": "O", "type": "intersection", "of": ["AC", "BD"]}], "draw": ["AC", "BD"]}}
+{"problem": "Hình thoi ABCD có góc A = 60°, cạnh 5", "output": {"figure": "rhombus", "names": "ABCD", "side": 5, "angle": 60}}
+{"problem": "Hình thang ABCD (AB // CD), M, N là trung điểm AD, BC. Nối MN", "output": {"figure": "trapezoid", "names": "ABCD", "extras": [{"name": "M", "type": "midpoint", "of": "AD"}, {"name": "N", "type": "midpoint", "of": "BC"}], "draw": ["MN"]}}
+{"problem": "Hình thang ABCD (AB // CD), hai đường chéo cắt nhau tại O", "output": {"figure": "trapezoid", "names": "ABCD", "extras": [{"name": "O", "type": "intersection", "of": ["AC", "BD"]}], "draw": ["AC", "BD"]}}
+{"problem": "Hình thang cân ABCD (AB // CD), AB = 8, CD = 4, đường cao CH", "output": {"figure": "isosceles_trapezoid", "names": "ABCD", "AB": 8, "CD": 4, "extras": [{"name": "H", "type": "foot", "from": "C", "to": "AB"}]}}
+{"problem": "Hình thang cân ABCD (AB // CD), hai đường chéo cắt nhau tại O", "output": {"figure": "isosceles_trapezoid", "names": "ABCD", "extras": [{"name": "O", "type": "intersection", "of": ["AC", "BD"]}], "draw": ["AC", "BD"]}}
+{"problem": "Hình thang vuông ABCD vuông tại A và D, BH vuông góc với CD tại H", "output": {"figure": "right_trapezoid", "names": "ABCD", "extras": [{"name": "H", "type": "foot", "from": "B", "to": "CD"}]}}
+{"problem": "Hình diều ABCD (AB = AD, CB = CD)", "output": {"figure": "kite", "names": "ABCD"}}
+{"problem": "Hình diều ABCD, hai đường chéo AC và BD", "output": {"figure": "kite", "names": "ABCD", "draw": ["AC", "BD"]}}
+{"problem": "Tứ giác ABCD", "output": {"figure": "quadrilateral", "names": "ABCD"}}
+{"problem": "Tứ giác ABCD có hai đường chéo AC, BD cắt nhau tại O", "output": {"figure": "quadrilateral", "names": "ABCD", "extras": [{"name": "O", "type": "intersection", "of": ["AC", "BD"]}], "draw": ["AC", "BD"]}}
+{"problem": "Tứ giác ABCD, E, F, G, H lần lượt là trung điểm AB, BC, CD, DA. Nối EF, FG, GH, HE", "output": {"figure": "quadrilateral", "names": "ABCD", "extras": [{"name": "E", "type": "midpoint", "of": "AB"}, {"name": "F", "type": "midpoint", "of": "BC"}, {"name": "G", "type": "midpoint", "of": "CD"}, {"name": "H", "type": "midpoint", "of": "DA"}], "draw": ["EF", "FG", "GH", "HE"]}}
+{"problem": "Lục giác đều ABCDEF tâm O", "output": {"figure": "regular_polygon", "names": "ABCDEF", "extras": [{"name": "O", "type": "center_of", "of": "ABCDEF"}]}}
+{"problem": "Ngũ giác đều ABCDE cạnh 3", "output": {"figure": "regular_polygon", "names": "ABCDE", "side": 3}}
+{"problem": "Hình vuông ABCD nội tiếp đường tròn (O)", "output": {"figure": "square", "names": "ABCD", "extras": [{"name": "O", "type": "circumcircle", "of": "ABC"}]}}
+{"problem": "Tam giác đều ABC nội tiếp đường tròn (O)", "output": {"figure": "equilateral_triangle", "names": "ABC", "extras": [{"name": "O", "type": "circumcircle", "of": "ABC"}]}}
+{"problem": "Tam giác ABC nội tiếp đường tròn (O)", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "O", "type": "circumcircle", "of": "ABC"}]}}
+{"problem": "Đường tròn (O)", "output": {"figure": "circle", "center": "O"}}
+{"problem": "Đường tròn (O; 3 cm)", "output": {"figure": "circle", "center": "O", "r": 3}}
+{"problem": "Đường tròn tâm O, đường kính AB", "output": {"figure": "circle", "center": "O", "diameter": ["A", "B"]}}
+{"problem": "Đường tròn (O;R), ba điểm A, B, C thuộc (O;R)", "output": {"figure": "circle", "center": "O", "on_circle": ["A", "B", "C"]}}
+{"problem": "Đường tròn (O), dây AB", "output": {"figure": "circle", "center": "O", "on_circle": ["A", "B"], "draw": ["AB"]}}
+{"problem": "Đường tròn (O), dây AB, M là trung điểm AB, nối OM", "output": {"figure": "circle", "center": "O", "on_circle": ["A", "B"], "extras": [{"name": "M", "type": "midpoint", "of": "AB"}], "draw": ["AB", "OM"], "marks": [{"type": "right_angle", "at": "M", "between": ["O", "A"]}]}}
+{"problem": "Đường tròn (O), đường kính AB, C thuộc (O), nối AC, BC", "output": {"figure": "circle", "center": "O", "diameter": ["A", "B"], "on_circle": ["C"], "draw": ["AC", "BC"], "marks": [{"type": "right_angle", "at": "C", "between": ["A", "B"]}]}}
+{"problem": "Nửa đường tròn tâm O đường kính AB", "output": {"figure": "semicircle", "center": "O", "names": "AB"}}
+{"problem": "Nửa đường tròn tâm O đường kính AB, C thuộc nửa đường tròn, nối AC, BC", "output": {"figure": "semicircle", "center": "O", "names": "AB", "on_circle": ["C"], "draw": ["AC", "BC"]}}
+{"problem": "Đường tròn (O;R), A thuộc (O), vẽ bán kính OA", "output": {"figure": "circle", "center": "O", "on_circle": ["A"], "draw": ["OA"]}}
+{"problem": "Cho đường tròn (O) và điểm M nằm trên (O)", "output": {"figure": "circle", "center": "O", "on_circle": ["M"]}}
+{"problem": "Đường tròn (O) có bốn điểm A, B, C, D thuộc (O), nối AB, BC, CD, DA", "output": {"figure": "circle", "center": "O", "on_circle": ["A", "B", "C", "D"], "draw": ["AB", "BC", "CD", "DA"]}}
+{"problem": "Tứ giác ABCD nội tiếp đường tròn (O)", "output": {"figure": "circle", "center": "O", "on_circle": ["A", "B", "C", "D"], "draw": ["AB", "BC", "CD", "DA"]}}
+{"problem": "Tứ giác ABCD nội tiếp (O), hai đường chéo AC, BD cắt nhau tại I", "output": {"figure": "circle", "center": "O", "on_circle": ["A", "B", "C", "D"], "extras": [{"name": "I", "type": "intersection", "of": ["AC", "BD"]}], "draw": ["AB", "BC", "CD", "DA", "AC", "BD"]}}
+{"problem": "Tam giác ABC nội tiếp (O), AD là đường kính", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "O", "type": "circumcircle", "of": "ABC"}, {"name": "D", "type": "reflect", "point": "A", "over": "O"}], "draw": ["AD"]}}
+{"problem": "Cho (O) đường kính AB, C thuộc (O), CH vuông góc AB tại H", "output": {"figure": "circle", "center": "O", "diameter": ["A", "B"], "on_circle": ["C"], "extras": [{"name": "H", "type": "foot", "from": "C", "to": "AB"}], "draw": ["AC", "BC"]}}
+{"problem": "Tam giác ABC nhọn nội tiếp (O), các đường cao BD, CE cắt nhau tại H", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "O", "type": "circumcircle", "of": "ABC"}, {"name": "D", "type": "foot", "from": "B", "to": "AC"}, {"name": "E", "type": "foot", "from": "C", "to": "AB"}, {"name": "H", "type": "intersection", "of": ["BD", "CE"]}]}}
+{"problem": "Tam giác ABC, đường tròn nội tiếp (I), đường tròn ngoại tiếp (O)", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "O", "type": "circumcircle", "of": "ABC"}, {"name": "I", "type": "incircle", "of": "ABC"}]}}
+{"problem": "Tam giác ABC, D thuộc đường tròn ngoại tiếp (O), nối AD", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "O", "type": "circumcircle", "of": "ABC"}, {"name": "D", "type": "on_circle", "of": "O"}], "draw": ["AD"]}}
+{"problem": "Từ điểm M nằm ngoài đường tròn (O) kẻ hai tiếp tuyến MA, MB", "output": {"figure": "circle", "center": "O", "extras": [{"type": "tangents", "from": "M", "of": "O", "names": ["A", "B"]}]}}
+{"problem": "Từ M ngoài (O;R) kẻ hai tiếp tuyến MA, MB (A, B là tiếp điểm), OM cắt AB tại H", "output": {"figure": "circle", "center": "O", "extras": [{"type": "tangents", "from": "M", "of": "O", "names": ["A", "B"]}, {"name": "H", "type": "intersection", "of": ["OM", "AB"]}], "draw": ["OA", "OB", "OM", "AB"]}}
+{"problem": "Từ M ngoài (O) kẻ tiếp tuyến MA và cát tuyến MBC", "output": {"figure": "circle", "center": "O", "extras": [{"type": "tangents", "from": "M", "of": "O", "names": ["A"]}, {"type": "secant", "from": "M", "of": "O", "names": ["B", "C"]}]}}
+{"problem": "Từ A nằm ngoài (O) kẻ cát tuyến ABC (B nằm giữa A và C)", "output": {"figure": "circle", "center": "O", "extras": [{"type": "secant", "from": "A", "of": "O", "names": ["B", "C"]}]}}
+{"problem": "Đường thẳng d tiếp xúc với đường tròn (O) tại A", "output": {"figure": "circle", "center": "O", "on_circle": ["A"], "extras": [{"type": "line", "name": "d", "tangent_at": "A", "of": "O"}]}}
+{"problem": "Tiếp tuyến tại A và B của (O) cắt nhau tại M", "output": {"figure": "circle", "center": "O", "on_circle": ["A", "B"], "extras": [{"type": "line", "name": "a", "tangent_at": "A", "of": "O"}, {"type": "line", "name": "b", "tangent_at": "B", "of": "O"}, {"name": "M", "type": "intersection", "of": ["a", "b"]}]}}
+{"problem": "Đường tròn (O) đường kính AB, các tiếp tuyến Ax và By của (O)", "output": {"figure": "circle", "center": "O", "diameter": ["A", "B"], "extras": [{"type": "line", "name": "x", "tangent_at": "A", "of": "O"}, {"type": "line", "name": "y", "tangent_at": "B", "of": "O"}]}}
+{"problem": "Hai đường tròn (O) và (O') cắt nhau tại A, B", "output": {"figure": "two_circles", "centers": ["O", "O'"], "relation": "intersect", "common": ["A", "B"], "draw": ["AB"]}}
+{"problem": "Hai đường tròn (O;R) và (O';R') tiếp xúc ngoài tại A", "output": {"figure": "two_circles", "centers": ["O", "O'"], "relation": "tangent_external", "common": ["A"]}}
+{"problem": "Hai đường tròn (O) và (O') tiếp xúc trong tại T", "output": {"figure": "two_circles", "centers": ["O", "O'"], "relation": "tangent_internal", "common": ["T"]}}
+{"problem": "Hai đường tròn (O) và (O') ở ngoài nhau", "output": {"figure": "two_circles", "centers": ["O", "O'"], "relation": "outside"}}
+{"problem": "Đường tròn (O') nằm trong đường tròn (O)", "output": {"figure": "two_circles", "centers": ["O", "O'"], "relation": "inside"}}
+{"problem": "Hai đường tròn (O; 3) và (O'; 2) cắt nhau tại A, B, nối OO'", "output": {"figure": "two_circles", "centers": ["O", "O'"], "relation": "intersect", "r1": 3, "r2": 2, "common": ["A", "B"], "draw": ["OO'"]}}
+{"problem": "Cho đường thẳng d, điểm A thuộc d, điểm B không thuộc d", "output": {"figure": "none", "extras": [{"type": "line", "name": "d"}, {"name": "A", "type": "on_line", "of": "d"}, {"name": "B", "type": "off_line", "of": "d"}]}}
+{"problem": "Qua điểm M không thuộc đường thẳng d, kẻ đường thẳng a song song với d", "output": {"figure": "none", "extras": [{"type": "line", "name": "d"}, {"name": "M", "type": "off_line", "of": "d"}, {"type": "line", "name": "a", "through": "M", "parallel_to": "d"}]}}
+{"problem": "Qua điểm M không thuộc đường thẳng d, kẻ đường thẳng b vuông góc với d", "output": {"figure": "none", "extras": [{"type": "line", "name": "d"}, {"name": "M", "type": "off_line", "of": "d"}, {"type": "line", "name": "b", "through": "M", "perpendicular_to": "d"}]}}
+{"problem": "Cho hai điểm A, B và đường thẳng AB", "output": {"figure": "none", "extras": [{"type": "line", "name": "d"}, {"name": "A", "type": "on_line", "of": "d"}, {"name": "B", "type": "on_line", "of": "d"}]}}
+{"problem": "Cho đường thẳng d và ba điểm A, B, C thuộc d", "output": {"figure": "none", "extras": [{"type": "line", "name": "d"}, {"name": "A", "type": "on_line", "of": "d"}, {"name": "B", "type": "on_line", "of": "d"}, {"name": "C", "type": "on_line", "of": "d"}]}}
+{"problem": "Tam giác ABC, tia Ax đi qua trung điểm M của BC", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "M", "type": "midpoint", "of": "BC"}, {"type": "ray", "name": "x", "from": "A", "through": "M"}]}}
+{"problem": "Tam giác ABC, đường thẳng d đi qua A và B", "output": {"figure": "triangle", "names": "ABC", "extras": [{"type": "line", "name": "d", "through": ["A", "B"]}]}}
+{"problem": "Tam giác ABC, M là trung điểm BC, đánh dấu BM = MC", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "M", "type": "midpoint", "of": "BC"}], "marks": [{"type": "equal_sides", "sides": ["BM", "MC"], "ticks": 1}]}}
+{"problem": "Tam giác ABC, vẽ cạnh BC bằng nét đứt", "output": {"figure": "triangle", "names": "ABC", "dashed": ["BC"]}}
+{"problem": "Tam giác ABC, tô màu tam giác ABC", "output": {"figure": "triangle", "names": "ABC", "fill": [["A", "B", "C"]]}}
+{"problem": "Hình chữ nhật ABCD, tô màu xanh tam giác ABC", "output": {"figure": "rectangle", "names": "ABCD", "fill": [{"points": ["A", "B", "C"], "color": "lightblue"}]}}
+{"problem": "Hình bình hành ABCD, vectơ AB, AD và AC", "output": {"figure": "parallelogram", "names": "ABCD", "vectors": [["A", "B"], ["A", "D"], ["A", "C"]]}}
+{"problem": "Tam giác ABC có BC = a, CA = b, AB = c", "output": {"figure": "triangle", "names": "ABC", "side_labels": {"BC": "a", "CA": "b", "AB": "c"}}}
+{"problem": "Tam giác ABC có góc A = α", "output": {"figure": "triangle", "names": "ABC", "marks": [{"type": "angle", "at": "A", "between": ["B", "C"], "label": "α"}]}}
+{"problem": "Tam giác ABC có AB = AC", "output": {"figure": "triangle", "names": "ABC", "marks": [{"type": "equal_sides", "sides": ["AB", "AC"], "ticks": 1}]}}
+{"problem": "Tam giác ABC, M, N là trung điểm AB, AC. Chứng minh MN song song BC", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "M", "type": "midpoint", "of": "AB"}, {"name": "N", "type": "midpoint", "of": "AC"}], "draw": ["MN"], "marks": [{"type": "equal_sides", "sides": ["AM", "MB"], "ticks": 1}, {"type": "equal_sides", "sides": ["AN", "NC"], "ticks": 2}]}}
+{"problem": "Tam giác ABC vuông tại A, đánh dấu góc vuông tại A", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "marks": [{"type": "right_angle", "at": "A", "between": ["B", "C"]}]}}
+{"problem": "Trong mặt phẳng Oxy cho hai điểm A(1; 2), B(3; -1)", "output": {"figure": "coordinate", "points": {"A": [1, 2], "B": [3, -1]}}}
+{"problem": "Trong mặt phẳng Oxy cho A(1; 2), B(3; -1), nối AB", "output": {"figure": "coordinate", "points": {"A": [1, 2], "B": [3, -1]}, "draw": ["AB"]}}
+{"problem": "Trong mặt phẳng Oxy cho tam giác ABC có A(0; 0), B(4; 0), C(1; 3)", "output": {"figure": "coordinate", "points": {"A": [0, 0], "B": [4, 0], "C": [1, 3]}, "draw": ["AB", "BC", "CA"]}}
+{"problem": "Trong mặt phẳng Oxy cho A(-2; 1), B(2; 3), C(4; -1), D(0; -3)", "output": {"figure": "coordinate", "points": {"A": [-2, 1], "B": [2, 3], "C": [4, -1], "D": [0, -3]}, "draw": ["AB", "BC", "CD", "DA"]}}
+{"problem": "Trong mặt phẳng Oxy cho A(1; 2), B(3; 5), vẽ vectơ AB", "output": {"figure": "coordinate", "points": {"A": [1, 2], "B": [3, 5]}, "vectors": [["A", "B"]]}}
+{"problem": "Vẽ đồ thị hàm số y = 2x + 1", "output": {"figure": "coordinate", "graphs": [{"kind": "linear", "a": 2, "b": 1, "name": "d"}]}}
+{"problem": "Vẽ đồ thị hàm số y = x²", "output": {"figure": "coordinate", "graphs": [{"kind": "quadratic", "a": 1, "b": 0, "c": 0, "name": "P"}]}}
+{"problem": "Vẽ đồ thị hàm số y = -x² + 2", "output": {"figure": "coordinate", "graphs": [{"kind": "quadratic", "a": -1, "b": 0, "c": 2, "name": "P"}]}}
+{"problem": "Vẽ đồ thị hàm số y = 0,5x²", "output": {"figure": "coordinate", "graphs": [{"kind": "quadratic", "a": 0.5, "b": 0, "c": 0, "name": "P"}]}}
+{"problem": "Vẽ (P): y = x² và (d): y = x + 2 trên cùng mặt phẳng toạ độ, tìm giao điểm A, B", "output": {"figure": "coordinate", "graphs": [{"kind": "quadratic", "a": 1, "b": 0, "c": 0, "name": "P"}, {"kind": "linear", "a": 1, "b": 2, "name": "d"}], "extras": [{"type": "graph_intersection", "of": ["P", "d"], "names": ["A", "B"]}]}}
+{"problem": "Vẽ hai đường thẳng (d1): y = x + 1 và (d2): y = -x + 3, giao điểm M", "output": {"figure": "coordinate", "graphs": [{"kind": "linear", "a": 1, "b": 1, "name": "d1"}, {"kind": "linear", "a": -1, "b": 3, "name": "d2"}], "extras": [{"type": "graph_intersection", "of": ["d1", "d2"], "names": ["M"]}]}}
+{"problem": "Vẽ đường thẳng x = 2 và đường thẳng y = 3", "output": {"figure": "coordinate", "graphs": [{"kind": "vertical", "x": 2, "name": "a"}, {"kind": "horizontal", "y": 3, "name": "b"}]}}
+{"problem": "Đồ thị hàm số y = 2x - 3 đi qua điểm A(2; 1)", "output": {"figure": "coordinate", "points": {"A": [2, 1]}, "graphs": [{"kind": "linear", "a": 2, "b": -3, "name": "d"}]}}
+{"problem": "Hình lập phương ABCD.A'B'C'D'", "output": {"figure": "cube", "names": "ABCD.A'B'C'D'"}}
+{"problem": "Hình lập phương ABCD.A'B'C'D' cạnh 3", "output": {"figure": "cube", "names": "ABCD.A'B'C'D'", "side": 3}}
+{"problem": "Hình hộp chữ nhật ABCD.A'B'C'D'", "output": {"figure": "prism", "names": "ABCD.A'B'C'D'"}}
+{"problem": "Hình hộp chữ nhật ABCD.A'B'C'D' có AB = 4, AD = 3, AA' = 5", "output": {"figure": "prism", "names": "ABCD.A'B'C'D'", "AB": 4, "AD": 3, "AA'": 5}}
+{"problem": "Lăng trụ tam giác ABC.A'B'C'", "output": {"figure": "prism", "names": "ABC.A'B'C'"}}
+{"problem": "Lăng trụ tam giác ABC.A'B'C', M là trung điểm BC", "output": {"figure": "prism", "names": "ABC.A'B'C'", "extras": [{"name": "M", "type": "midpoint", "of": "BC"}]}}
+{"problem": "Hình chóp S.ABCD có đáy ABCD là hình chữ nhật", "output": {"figure": "pyramid", "names": "S.ABCD"}}
+{"problem": "Hình chóp S.ABCD có đáy là hình vuông cạnh a, SA vuông góc với đáy", "output": {"figure": "pyramid", "names": "S.ABCD", "base": "square", "apex_over": "A", "side_labels": {"AB": "a"}}}
+{"problem": "Hình chóp S.ABCD đáy là hình vuông, SA = 4 và SA vuông góc đáy", "output": {"figure": "pyramid", "names": "S.ABCD", "base": "square", "apex_over": "A", "SA": 4}}
+{"problem": "Hình chóp S.ABCD, O là giao điểm của AC và BD, SO vuông góc với đáy", "output": {"figure": "pyramid", "names": "S.ABCD", "extras": [{"name": "O", "type": "intersection", "of": ["AC", "BD"]}], "draw": ["SO"]}}
+{"problem": "Hình chóp S.ABC có đáy ABC là tam giác", "output": {"figure": "pyramid", "names": "S.ABC"}}
+{"problem": "Hình chóp S.ABC, M là trung điểm SA, nối MB, MC", "output": {"figure": "pyramid", "names": "S.ABC", "extras": [{"name": "M", "type": "midpoint", "of": "SA"}], "draw": ["MB", "MC"]}}
+{"problem": "Hình chóp S.ABCD, M là trung điểm SC, nối BM, DM", "output": {"figure": "pyramid", "names": "S.ABCD", "extras": [{"name": "M", "type": "midpoint", "of": "SC"}], "draw": ["BM", "DM"]}}
+{"problem": "Tứ diện ABCD", "output": {"figure": "tetrahedron", "names": "ABCD"}}
+{"problem": "Tứ diện ABCD, M là trung điểm AB, N là trung điểm CD, nối MN", "output": {"figure": "tetrahedron", "names": "ABCD", "extras": [{"name": "M", "type": "midpoint", "of": "AB"}, {"name": "N", "type": "midpoint", "of": "CD"}], "draw": ["MN"]}}
+{"problem": "Cho tam giác ABC vuông tại A (AB < AC), đường cao AH. Gọi M là trung điểm BC, nối AM", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "extras": [{"name": "H", "type": "foot", "from": "A", "to": "BC"}, {"name": "M", "type": "midpoint", "of": "BC"}], "draw": ["AM"]}}
+{"problem": "Cho đường tròn (O) đường kính AB, C thuộc (O). Kẻ CH vuông góc AB tại H. Tiếp tuyến tại A cắt BC tại D", "output": {"figure": "circle", "center": "O", "diameter": ["A", "B"], "on_circle": ["C"], "extras": [{"name": "H", "type": "foot", "from": "C", "to": "AB"}, {"type": "line", "name": "t", "tangent_at": "A", "of": "O"}, {"name": "D", "type": "intersection", "of": ["t", "BC"]}], "draw": ["AC", "BD"]}}
+{"problem": "Cho hình vuông ABCD, M thuộc BC. AM cắt CD tại N", "output": {"figure": "square", "names": "ABCD", "extras": [{"name": "M", "type": "on_segment", "of": "BC", "ratio": 0.4}, {"name": "N", "type": "intersection", "of": ["AM", "CD"]}], "draw": ["AN"]}}
+{"problem": "Cho hình vuông ABCD, M thuộc BC, N thuộc CD sao cho góc MAN = 45°. Nối MN", "output": {"figure": "square", "names": "ABCD", "extras": [{"name": "M", "type": "on_segment", "of": "BC", "ratio": 0.4}, {"name": "N", "type": "on_segment", "of": "CD", "angle": {"vertex": "A", "other": "M", "value": 45}}], "draw": ["MN"]}}
+{"problem": "Cho hình bình hành ABCD, M là trung điểm CD, AM cắt BD tại N", "output": {"figure": "parallelogram", "names": "ABCD", "extras": [{"name": "M", "type": "midpoint", "of": "CD"}, {"name": "N", "type": "intersection", "of": ["AM", "BD"]}], "draw": ["AM", "BD"]}}
+{"problem": "Cho tam giác ABC có AD là phân giác, kẻ DE song song AB (E thuộc AC)", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "D", "type": "bisector_foot", "from": "A", "of": "BC"}, {"type": "line", "name": "d", "through": "D", "parallel_to": "AB"}, {"name": "E", "type": "intersection", "of": ["d", "AC"]}], "draw": ["DE"]}}
+{"problem": "Cho đường tròn (O;R), điểm A nằm ngoài (O). Kẻ tiếp tuyến AB (B là tiếp điểm) và cát tuyến ACD", "output": {"figure": "circle", "center": "O", "extras": [{"type": "tangents", "from": "A", "of": "O", "names": ["B"]}, {"type": "secant", "from": "A", "of": "O", "names": ["C", "D"]}]}}
+{"problem": "Cho tam giác ABC vuông tại A, đường tròn đường kính AB cắt BC tại D", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "extras": [{"type": "circle", "center": "O", "diameter": ["A", "B"]}, {"name": "D", "type": "foot", "from": "A", "to": "BC"}], "draw": ["AD"]}}
+{"problem": "Cho (O) đường kính AB, dây CD vuông góc với AB tại H", "output": {"figure": "circle", "center": "O", "diameter": ["A", "B"], "on_circle": ["C"], "extras": [{"name": "D", "type": "reflect", "point": "C", "over": "AB"}, {"name": "H", "type": "foot", "from": "C", "to": "AB"}], "draw": ["CD"]}}
+{"problem": "tam giac ABC vuong tai A", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A"}}
+{"problem": "hcn ABCD", "output": {"figure": "rectangle", "names": "ABCD"}}
+{"problem": "Cho ΔABC cân tại A", "output": {"figure": "isosceles_triangle", "names": "ABC", "apex": "A"}}
+{"problem": "Right triangle ABC with the right angle at B", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "B"}}
+{"problem": "Isosceles triangle ABC with AB = AC", "output": {"figure": "isosceles_triangle", "names": "ABC", "apex": "A"}}
+{"problem": "Square ABCD with side 4", "output": {"figure": "square", "names": "ABCD", "side": 4}}
+{"problem": "Rectangle ABCD, AB = 5, BC = 3", "output": {"figure": "rectangle", "names": "ABCD", "AB": 5, "BC": 3}}
+{"problem": "Circle with center O and radius 3", "output": {"figure": "circle", "center": "O", "r": 3}}
+{"problem": "Vẽ giúp mình hình thoi ABCD", "output": {"figure": "rhombus", "names": "ABCD"}}
+{"problem": "ABCD là hình chữ nhật có AB = 5, AD = 3", "output": {"figure": "rectangle", "names": "ABCD", "AB": 5, "AD": 3}}
+{"problem": "Cho tam giác ABC với M là trung điểm của cạnh BC", "output": {"figure": "triangle", "names": "ABC", "extras": [{"name": "M", "type": "midpoint", "of": "BC"}]}}
+{"problem": "△ABC vuông tại A có AB = 3 cm, AC = 4 cm", "output": {"figure": "right_triangle", "names": "ABC", "right_at": "A", "AB": 3, "AC": 4}}

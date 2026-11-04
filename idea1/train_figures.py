@@ -2,12 +2,12 @@
 train_figures.py - "Dạy" model vẽ hình.
 
 Nhập đề -> xem model trả JSON gì + hình vẽ ra -> đúng thì lưu, sai thì dán JSON đúng vào rồi lưu.
-Ví dụ lưu trong examples.jsonl (cùng thư mục với draw_ai_v5.py). Lần sau hỏi đề giống vậy,
+Ví dụ lưu trong examples.jsonl (cùng thư mục với main.py). Lần sau hỏi đề giống vậy,
 chương trình sẽ đưa ví dụ đó cho model, nên model làm đúng dần.
 
 Chạy: python train_figures.py
 
-Lệnh:  :l  liệt kê ví dụ     :x  xoá ví dụ cuối     :seed  thêm ví dụ mẫu mới của chương trình     :q  thoát
+Lệnh:  :l  liệt kê ví dụ     :x  xoá ví dụ cuối     :seed  nạp các ca trong train_cases.txt + ví dụ mẫu mới vào examples.jsonl     :q  thoát
 Hoặc mở examples.jsonl, mỗi dòng 1 ví dụ: {"problem": "...", "output": {...}}  -> sửa tay cũng được.
 """
 import json
