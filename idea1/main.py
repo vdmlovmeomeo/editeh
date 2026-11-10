@@ -12,7 +12,7 @@ from matplotlib.patches import Arc, Circle, Polygon
 import requests
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "qwen2.5-coder:1.5b"
+MODEL = "deepscaler"
 MAX_RETRY = 3
 N_EXAMPLES = 3  # số ví dụ giống nhất đưa vào prompt
 EXAMPLES_PATH = Path(__file__).with_name("examples.jsonl")
