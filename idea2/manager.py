@@ -70,16 +70,3 @@ class TaskManager:
 
         self._tasks = tasks
         self._next_id = max((i.id for i in tasks), default=0) + 1
-
-
-m = TaskManager()
-m.add_task("A")
-m.add_task("B")
-m.toggle_task(1)
-m.save_to_csv()
-
-m2 = TaskManager()
-m2.load_from_csv()
-print([(t.id, t.title, t.done) for t in m2.get_all_task()])  # [(1, 'A', True), (2, 'B', False)]
-m2.add_task("C")
-print(m2.find(3).title)  # C
