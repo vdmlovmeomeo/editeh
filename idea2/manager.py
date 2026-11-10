@@ -1,4 +1,6 @@
 from models import Task
+import csv
+from datetime import datetime
 
 class TaskManager:
     def __init__(self):
@@ -45,19 +47,39 @@ class TaskManager:
 
     #* ---------- Lưu trữ ----------
 
-    def save_to_csv(self, path: str='csvs/1.csv') -> None:
-        with open(path, 'a', encoding='utf-8') as f:
-            f.writelines(f'id: {self._next_id}')
+    def save_to_csv(self, path: str='C:/Users/vuong/school/2026-2027/editeh/idea2/csvs/tst.csv') -> None:
+        FIELDS = ["id", "title", "done", "created_at"]
+        with open(path, 'w', encoding='utf-8', newline='') as f:
+            wr = csv.DictWriter(f, fieldnames=FIELDS)
+            wr.writeheader()
+            for t in self._tasks:
+                wr.writerow({'id':t.id,
+                             'title':t.title,
+                             'done':t.done,
+                             'created_at':t.created_at.isoformat(),
+                            })
+            f.close()
 
-    def load_from_csv(self, path: str) -> None:
-        ...
+    def load_from_csv(self, path: str='C:/Users/vuong/school/2026-2027/editeh/idea2/csvs/tst.csv') -> None:
+        try:
+            with open(path, 'r', newline='', encoding='utf-8') as f:
+                rd = csv.DictReader(f)
+                tasks = [Task(id=int(r['id']), title=r['title'], done=bool(r['done']=='True'), created_at=datetime.fromisoformat(r['created_at'])) for r in rd]
+        except FileNotFoundError:
+            return None
+
+        self._tasks = tasks
+        self._next_id = max((i.id for i in tasks), default=0) + 1
+
 
 m = TaskManager()
 m.add_task("A")
 m.add_task("B")
 m.toggle_task(1)
-print(m.find(1).done)   # True
-m.toggle_task(1)
-print(m.find(1).done)   # False
-m.delete_task(2)
-print([t.title for t in m.get_all_task()])  # ['A']
+m.save_to_csv()
+
+m2 = TaskManager()
+m2.load_from_csv()
+print([(t.id, t.title, t.done) for t in m2.get_all_task()])  # [(1, 'A', True), (2, 'B', False)]
+m2.add_task("C")
+print(m2.find(3).title)  # C
