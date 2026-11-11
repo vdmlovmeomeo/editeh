@@ -91,6 +91,7 @@ class TaskManager:
                               
                               for r in rd]
         except FileNotFoundError:
+            print(f"Không tìm thấy file: {path}")
             return None
 
         self._tasks = tasks
