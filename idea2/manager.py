@@ -31,9 +31,15 @@ class TaskManager:
         self._next_id += 1
         self._tasks.append(task)
         return task
+
+    def edit_content(self, task_id:int, text:str) -> None:
+        task = self.find(task_id)
+        if task is None or not text:
+            raise ValueError
+        task.content = str(text)
+
     
     def toggle_task(self, task_id: int) -> None:
-        # Đảo trạng thái done của task, nếu không tìm thấy thì báo lỗi hoặc bỏ qua
         task = self.find(task_id)
         if task is None:
             raise ValueError
@@ -55,6 +61,7 @@ class TaskManager:
             for t in self._tasks:
                 wr.writerow({'id':t.id,
                              'title':t.title,
+                             'content':t.content,
                              'done':t.done,
                              'created_at':t.created_at.isoformat(),
                             })
@@ -64,7 +71,7 @@ class TaskManager:
         try:
             with open(path, 'r', newline='', encoding='utf-8') as f:
                 rd = csv.DictReader(f)
-                tasks = [Task(id=int(r['id']), title=r['title'], done=bool(r['done']=='True'), created_at=datetime.fromisoformat(r['created_at'])) for r in rd]
+                tasks = [Task(id=int(r['id']), title=r['title'], done=bool(r['done']=='True'), content=r['content'], created_at=datetime.fromisoformat(r['created_at'])) for r in rd]
         except FileNotFoundError:
             return None
 
