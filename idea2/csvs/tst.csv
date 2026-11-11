@@ -1,3 +1,2 @@
-id,title,done,created_at
-1,A,True,2026-11-11T00:14:59.146261
-2,B,False,2026-11-11T00:14:59.146301
+id,title,done,content,deadline,created_at
+1,math,False,smth smth,2026-11-12,2026-11-11T23:25:03.531434
