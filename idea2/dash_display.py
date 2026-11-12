@@ -6,8 +6,6 @@ from PyQt6.QtCore import Qt
 from manager import TaskManager
 from dash import deadline_heatmap
 
-# Màu từ nhạt đến đậm, level 0 là ngày không có deadline
-# Thang màu từ nhạt đến đậm, index 0 là không có deadline
 LEVEL_COLORS = [
     "#313244",  # 0
     "#1f3b2d",  # 1
@@ -60,23 +58,11 @@ class HeatmapView(QWidget):
                 text_color = "#1e1e2e" if level >= 3 else "#cdd6f4"
 
                 cell = make_label(str(day))
-                cell.setMinimumSize(48, 48)
+                cell.setMinimumSize(20, 20)
                 cell.setStyleSheet(
                     f"background-color: {LEVEL_COLORS[level]};"
-                    f"color: {text_color}; border-radius: 6px;"
+                    f"color: {text_color}; border-radius: 3px;"
                 )
                 cell.setToolTip(f"{n} deadline")
                 grid.addWidget(cell, row, col)
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    m = TaskManager()
-    m.load_from_csv("C:/Users/vuong/school/2026-2027/editeh/idea2/csvs/tst.csv")
-
-    view = HeatmapView(m.get_all_task(), 2026, 11)
-    view.setFixedSize(400,400)
-    view.show()
-    sys.exit(app.exec())
 

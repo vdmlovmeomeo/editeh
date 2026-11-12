@@ -1,12 +1,11 @@
 from models import Task
 import csv
 from datetime import datetime,date
+import ai_input
 
 class TaskManager:
     def __init__(self):
-        # Danh sách các Task đang có trong bộ nhớ
         self._tasks: list[Task] = []
-        # Bộ đếm để tạo id duy nhất cho mỗi task
         self._next_id: int = 1
 
     def get_all_task(self) -> list[Task]:
@@ -98,5 +97,11 @@ class TaskManager:
         self._next_id = max((i.id for i in tasks), default=0) + 1
 
 main = TaskManager()
-main.add_task('math', 'smth smth', deadline={"dd": 12, "mm": 11, "yy": 2026})
-main.save_to_csv()
+# for i in range(5):
+#     for j in range(i):
+#         a = i
+#         main.add_task('math', 'smth smth', deadline={"dd": a, "mm": 11, "yy": 2026})
+
+
+# main.add_task('math', 'smth smth', deadline={"dd": 11, "mm": 11, "yy": 2026})
+# main.save_to_csv()

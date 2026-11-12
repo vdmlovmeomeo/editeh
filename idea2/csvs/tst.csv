@@ -1,2 +1,12 @@
 id,title,done,content,deadline,created_at
-1,math,False,smth smth,2026-11-12,2026-11-11T23:39:51.954476
+1,math,False,smth smth,2026-11-01,2026-11-12T19:31:20.206007
+2,math,False,smth smth,2026-11-02,2026-11-12T19:31:20.206053
+3,math,False,smth smth,2026-11-02,2026-11-12T19:31:20.206059
+4,math,False,smth smth,2026-11-03,2026-11-12T19:31:20.206062
+5,math,False,smth smth,2026-11-03,2026-11-12T19:31:20.206065
+6,math,False,smth smth,2026-11-03,2026-11-12T19:31:20.206068
+7,math,False,smth smth,2026-11-04,2026-11-12T19:31:20.206070
+8,math,False,smth smth,2026-11-04,2026-11-12T19:31:20.206072
+9,math,False,smth smth,2026-11-04,2026-11-12T19:31:20.206075
+10,math,False,smth smth,2026-11-04,2026-11-12T19:31:20.206077
+11,math,False,smth smth,2026-11-11,2026-11-12T19:31:20.206080
