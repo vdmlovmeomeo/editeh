@@ -24,7 +24,9 @@ class TaskManager:
 
     def add_task(self, title: str, content: str, deadline: dict) -> Task:
         if not title.strip():
-            raise ValueError("Title không được rỗng")
+            # raise ValueError("Title không được rỗng")
+            print('No title')
+            return 
         d = date(deadline["yy"], deadline["mm"], deadline["dd"])
         task = Task(
             id=self._next_id,
@@ -39,25 +41,33 @@ class TaskManager:
     def edit_content(self, task_id:int, text:str) -> None:
         task = self.find(task_id)
         if task is None or not text:
-            raise ValueError
+            # raise ValueError
+            print('No task')
+            return 
         task.content = str(text)
 
     def edit_deadline(self, task_id:int, dd:int ,mm:int ,yyyy:int) -> None:
         task = self.find(task_id)
         if task is None or not dd or not mm or not yyyy:
-            raise ValueError
+            # raise ValueError
+            print('No task')
+            return 
         task.deadline = date(yyyy,mm,dd)
     
     def toggle_task(self, task_id: int) -> None:
         task = self.find(task_id)
         if task is None:
-            raise ValueError
+            # raise ValueError
+            print('No task')
+            return 
         task.done = not task.done
 
     def delete_task(self, task_id: int) -> None:
         task = self.find(task_id)
         if task is None:
-            raise ValueError
+            # raise ValueError
+            print('No task')
+            return 
         self._tasks.remove(task)
 
     #* ---------- Lưu trữ ----------
@@ -90,8 +100,8 @@ class TaskManager:
                               
                               for r in rd]
         except FileNotFoundError:
-            print(f"Không tìm thấy file: {path}")
-            return None
+            # print(f"Không tìm thấy file: {path}")
+            return
 
         self._tasks = tasks
         self._next_id = max((i.id for i in tasks), default=0) + 1

@@ -57,11 +57,10 @@ class HeatmapDeadline(QWidget):
         grid = QGridLayout()
         layout.addLayout(grid)
 
-        # Hàng tiêu đề các thứ, monthcalendar bắt đầu từ thứ 2
+        # tiêu đề thứ, start: thứ 2
         for col, name in enumerate(["T2", "T3", "T4", "T5", "T6", "T7", "CN"]):
             grid.addWidget(make_label(name, bold=True), 0, col)
 
-        # Mỗi tuần là một hàng, số 0 là ô trống của ngày thuộc tháng khác
         for row, week in enumerate(calendar.monthcalendar(year, month), start=1):
             for col, day in enumerate(week):
                 if day == 0:
@@ -76,7 +75,7 @@ class HeatmapDeadline(QWidget):
                 cell.setStyleSheet(
                     f"background-color: {DEADLINE_COLORS[level]};"
                     f"color: {text_color}; border-radius: 3px;"
-                )
+                    )
                 cell.setToolTip(f"{n} deadline")
                 grid.addWidget(cell, row, col)
 
@@ -111,7 +110,21 @@ class HeatmapCompleted(QWidget):
                 cell.setMinimumSize(20, 20)
                 cell.setStyleSheet(
                     f"background-color: {COMPLETED_COLORS[level]};"
-                    f"color: {text_color}; border-radius: 3px;"
-                )
+                    f"color: {text_color}; border-radius: 4px;"
+                    )
                 cell.setToolTip(f"{n} completed")
                 grid.addWidget(cell, row, col)
+
+
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+
+    m = TaskManager()
+    m.load_from_csv("C:/Users/vuong/school/2026-2027/editeh/idea2/csvs/tst.csv")
+
+    view = HeatmapDeadline(m.get_all_task(), 2026, 11)
+    view.setFixedSize(200,200)
+    view.show()
+    sys.exit(app.exec())
