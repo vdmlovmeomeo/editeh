@@ -116,8 +116,6 @@ class HeatmapCompleted(QWidget):
                 grid.addWidget(cell, row, col)
 
 
-
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 

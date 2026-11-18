@@ -61,6 +61,7 @@ class TaskManager:
             print('No task')
             return 
         task.done = not task.done
+        task.completed_at = datetime.now() if task.done else None
 
     def delete_task(self, task_id: int) -> None:
         task = self.find(task_id)
@@ -73,7 +74,7 @@ class TaskManager:
     #* ---------- Lưu trữ ----------
 
     def save_to_csv(self, path: str='C:/Users/vuong/school/2026-2027/editeh/idea2/csvs/tst.csv') -> None:
-        FIELDS = ["id", "title", "done", "content", 'deadline', "created_at"]
+        FIELDS = ["id", "title", "done", "content", 'deadline', "created_at", "completed_at"]
         with open(path, 'w', encoding='utf-8', newline='') as f:
             wr = csv.DictWriter(f, fieldnames=FIELDS)
             wr.writeheader()
@@ -84,6 +85,7 @@ class TaskManager:
                              'deadline': t.deadline.isoformat(),
                              'done':t.done,
                              'created_at':t.created_at.isoformat(),
+                             'completed_at': t.completed_at.isoformat() if t.completed_at else '',
                             })
             f.close()
 
@@ -96,7 +98,8 @@ class TaskManager:
                               done=bool(r['done']=='True'), 
                               content=r['content'], 
                               deadline=date.fromisoformat(r["deadline"]), 
-                              created_at=datetime.fromisoformat(r['created_at'])) 
+                              created_at=datetime.fromisoformat(r['created_at']),
+                              completed_at=(datetime.fromisoformat(r['completed_at']) if r.get('completed_at') else None))
                               
                               for r in rd]
         except FileNotFoundError:
@@ -106,12 +109,3 @@ class TaskManager:
         self._tasks = tasks
         self._next_id = max((i.id for i in tasks), default=0) + 1
 
-main = TaskManager()
-# for i in range(5):
-#     for j in range(i):
-#         a = i
-#         main.add_task('math', 'smth smth', deadline={"dd": a, "mm": 11, "yy": 2026})
-
-
-# main.add_task('math', 'smth smth', deadline={"dd": 11, "mm": 11, "yy": 2026})
-# main.save_to_csv()

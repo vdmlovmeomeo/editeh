@@ -17,8 +17,8 @@ def completed_heatmap(tasks, year: int, month: int) -> np.ndarray:
     heatmap = np.zeros(days_in_month, dtype=int)
 
     for task in tasks:
-        d = task.done
-        if d and d.year == year and d.month == month:
+        d = task.completed_at
+        if d is not None and d.year == year and d.month == month:
             heatmap[d.day - 1] += 1
 
     return heatmap

@@ -1,0 +1,7 @@
+Form nhập tay ──┐
+Ảnh (vision)  ──┼──► ai_import / form ──► _add_items (validate) ──► TaskManager.add_task ──► save_to_csv
+Voice → text ───┘                                                          │
+                                                                           ▼
+                                              MainWindow.refresh() ◄── signal / gọi lại
+                                              ├── danh sách task (TaskItemWidget)
+                                              └── HeatmapView (deadline_heatmap)

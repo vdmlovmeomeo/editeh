@@ -9,3 +9,4 @@ class Task:
     deadline: date
     done: bool = False
     created_at: datetime = field(default_factory=datetime.now)
+    completed_at: datetime | None = None
