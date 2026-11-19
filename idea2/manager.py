@@ -26,10 +26,10 @@ class TaskManager:
         if not title.strip():
             # raise ValueError("Title không được rỗng")
             print('No title')
-            return 
+            return  # type: ignore
         d = date(deadline["yy"], deadline["mm"], deadline["dd"])
         task = Task(
-            id=self._next_id,
+            id=self._next_id, # pyright: ignore[reportCallIssue]
             title=title.strip(),
             content=content,
             deadline=d,

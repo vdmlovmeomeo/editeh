@@ -4,19 +4,16 @@ from datetime import date
 import ollama
 from pathlib import Path
 
-PROMPT = """/no_think
-Đọc ảnh này và liệt kê các công việc/deadline có trong đó.
-Chỉ trả về JSON hợp lệ, không giải thích, không dùng markdown.
-Định dạng: [{"title": "...", "content": "...", "deadline": "YYYY-MM-DD"}]
-Quy tắc tách nội dung:
-- Nếu dòng có dạng "Môn/chủ đề: việc cần làm", đặt phần trước dấu ":" vào title.
-- Đặt phần sau dấu ":" vào content.
-- Ví dụ "math: workbook pg20" phải trả về title="math", content="workbook pg20".
-- Không tự thêm thông tin không có trong ảnh.
-Nếu không có deadline rõ ràng thì bỏ qua mục đó."""
+PROMPT = """
+Đọc bảng bài tập viết tay trong ảnh. Chỉ trả về JSON array, không giải thích.
+Mỗi dòng bài tập là một object: {"title": môn học, "content": việc cần làm, "deadline": "YYYY-MM-DD" hoặc null}.
+Tách dạng "Môn: việc" thành title và content.
+T2, T3, T4, T5, T6, T7, CN chỉ là thứ trong tuần, KHÔNG phải title và không được đưa vào deadline.
+Nếu dòng có dạng "T5 (19/11): MẮC LỄ PHỤC" thì deadline là ngày 19/11 của năm gần nhất, content là "MẮC LỄ PHỤC".
+Chuyển mọi ngày D/M hoặc DD/MM sang YYYY-MM-DD. Không dùng placeholder như ..., không tự bịa dữ liệu.
+Chỉ dùng đúng các key title, content, deadline. Không viết chữ "vào title" hay "vào content" trong giá trị."""
 
-MODEL = "qwen3.5:0.8b"
-
+MODEL = "qwen2.5vl:3b"
 def parse_deadline(value: str) -> date:
     """Parse ISO dates and short dates such as 1/1 or 01/01."""
     value = str(value).strip()
@@ -54,7 +51,7 @@ def extract_tasks(image_path: str) -> list[dict]:
             messages=[{"role": "user", "content": PROMPT, "images": [str(image.resolve())]}],
             think=False,
             format="json",
-            options={"temperature": 0, "num_predict": 1024, "num_ctx": 2048},
+            options={"temperature": 0, "num_predict": 256, "num_ctx": 5000},
             stream=False,
         )
     except Exception as exc:
@@ -80,11 +77,20 @@ def extract_tasks(image_path: str) -> list[dict]:
     # Fallback cho model nhỏ: tự tách dạng "math: workbook pg20".
     for item in result:
         if isinstance(item, dict):
+            # Moondream thường dùng subject/workbook/date thay cho schema yêu cầu.
+            if not item.get("title") and item.get("subject"):
+                item["title"] = item.pop("subject")
+            if not item.get("content") and item.get("workbook"):
+                item["content"] = item.pop("workbook")
+            if not item.get("deadline") and item.get("date"):
+                item["deadline"] = item.pop("date")
             title = str(item.get("title", ""))
             if ":" in title and not str(item.get("content", "")).strip():
                 subject, details = title.split(":", 1)
                 item["title"] = subject.strip()
                 item["content"] = details.strip()
+            for key in ("title", "content", "deadline"):
+                item.setdefault(key, None)
     return result
 
 def import_from_image(manager, image_path: str) -> int:
@@ -103,7 +109,7 @@ def import_from_image(manager, image_path: str) -> int:
     return added
 
 if __name__ == "__main__":
-    image_path = Path(__file__).with_name("testimg.png")
+    image_path = Path(__file__).with_name("realsample.jpg")#ctx:4282tk
     try:
         print(extract_tasks(str(image_path)))
     except Exception as exc:
