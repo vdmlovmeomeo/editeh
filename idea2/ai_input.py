@@ -1,8 +1,11 @@
 import json
 import re
 from datetime import date
-import ollama
+import ollama # pyright: ignore[reportMissingImports]
 from pathlib import Path
+from tempfile import NamedTemporaryFile
+
+from PIL import Image
 
 PROMPT = """
 Đọc bảng bài tập viết tay trong ảnh. Chỉ trả về JSON array, không giải thích.
@@ -14,6 +17,20 @@ Chuyển mọi ngày D/M hoặc DD/MM sang YYYY-MM-DD. Không dùng placeholder 
 Chỉ dùng đúng các key title, content, deadline. Không viết chữ "vào title" hay "vào content" trong giá trị."""
 
 MODEL = "qwen2.5vl:3b"
+MAX_IMAGE_SIDE = 1280
+IMAGE_QUALITY = 85
+
+
+def _prepare_image(image: Path) -> Path:
+    """Create a smaller temporary image so vision tokens fit in a 4096 context."""
+    with Image.open(image) as source:
+        source.thumbnail((MAX_IMAGE_SIDE, MAX_IMAGE_SIDE), Image.Resampling.LANCZOS)
+        prepared = source.convert("RGB")
+        temporary = NamedTemporaryFile(suffix=".jpg", delete=False)
+        temporary_path = Path(temporary.name)
+        temporary.close()
+        prepared.save(temporary_path, format="JPEG", quality=IMAGE_QUALITY, optimize=True)
+    return temporary_path
 def parse_deadline(value: str) -> date:
     """Parse ISO dates and short dates such as 1/1 or 01/01."""
     value = str(value).strip()
@@ -44,14 +61,15 @@ def extract_tasks(image_path: str) -> list[dict]:
     # chưa chạy hoặc model chưa được cài.
     # Dùng localhost để phù hợp cả cấu hình Ollama bind theo hostname.
     # Vision model có thể mất vài phút khi chạy CPU hoặc load lần đầu.
+    prepared_image = _prepare_image(image)
     client = ollama.Client(host="http://localhost:11434", timeout=300)
     try:
         response = client.chat(
             model=MODEL,
-            messages=[{"role": "user", "content": PROMPT, "images": [str(image.resolve())]}],
+            messages=[{"role": "user", "content": PROMPT, "images": [str(prepared_image.resolve())]}],
             think=False,
             format="json",
-            options={"temperature": 0, "num_predict": 256, "num_ctx": 5000},
+            options={"temperature": 0, "num_predict": 256, "num_ctx": 4096},
             stream=False,
         )
     except Exception as exc:
@@ -59,6 +77,8 @@ def extract_tasks(image_path: str) -> list[dict]:
             "Không gọi được Ollama: "
             f"{type(exc).__name__}: {exc}"
         ) from exc
+    finally:
+        prepared_image.unlink(missing_ok=True)
     message = response.get("message", {})
     text = (message.get("content") or "").strip()
     if not text:
@@ -69,7 +89,12 @@ def extract_tasks(image_path: str) -> list[dict]:
     match = re.search(r"(?:\[.*\]|\{.*\})", text, flags=re.DOTALL)
     if not match:
         raise ValueError(f"AI không trả về JSON danh sách task. Response: {text[:300]!r}")
-    result = json.loads(match.group(0))
+    try:
+        result = json.JSONDecoder().raw_decode(text[match.start() :])[0]
+    except json.JSONDecodeError as exc:
+        raise ValueError(
+            f"AI tráº£ JSON khÃ´ng há»£p lá»‡: {text[:300]!r}"
+        ) from exc
     if isinstance(result, dict):
         result = [result]
     if not isinstance(result, list):
