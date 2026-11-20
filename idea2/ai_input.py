@@ -8,17 +8,18 @@ from tempfile import NamedTemporaryFile
 from PIL import Image
 
 PROMPT = """
-Đọc bảng bài tập viết tay trong ảnh. Chỉ trả về JSON array, không giải thích.
-Mỗi dòng bài tập là một object: {"title": môn học, "content": việc cần làm, "deadline": "YYYY-MM-DD" hoặc null}.
-Tách dạng "Môn: việc" thành title và content.
-T2, T3, T4, T5, T6, T7, CN chỉ là thứ trong tuần, KHÔNG phải title và không được đưa vào deadline.
-Nếu dòng có dạng "T5 (19/11): MẮC LỄ PHỤC" thì deadline là ngày 19/11 của năm gần nhất, content là "MẮC LỄ PHỤC".
-Chuyển mọi ngày D/M hoặc DD/MM sang YYYY-MM-DD. Không dùng placeholder như ..., không tự bịa dữ liệu.
-Chỉ dùng đúng các key title, content, deadline. Không viết chữ "vào title" hay "vào content" trong giá trị."""
+\u0110\u1ecd c\u00e1c d\u00f2ng b\u00e0i t\u1eadp vi\u1ebft tay trong \u1ea3nh. Ch\u1ec9 tr\u1ea3 v\u1ec1 JSON array, kh\u00f4ng gi\u1ea3i th\u00edch.
+M\u1ed7i d\u00f2ng m\u00f4n h\u1ecdc l\u00e0 m\u1ed9t task ri\u00eang, kh\u00f4ng \u0111\u01b0\u1ee3c b\u1ecf c\u00e1c d\u00f2ng \u1edf d\u01b0\u1edbi. B\u1ecf qua ti\u00eau \u0111\u1ec1 chung \u0111\u1ea7u trang.
+Schema: {"title": "m\u00f4n h\u1ecdc", "content": "vi\u1ec7c c\u1ea7n l\u00e0m", "deadline": "YYYY-MM-DD" ho\u1eb7c null}.
+T\u00e1ch d\u1ea1ng "M\u00f4n: vi\u1ec7c" th\u00e0nh title v\u00e0 content. Ghi ch\u00fa ng\u00e0y/th\u1ee9 \u1edf c\u1ed9t b\u00ean ph\u1ea3i thu\u1ed9c v\u1ec1 task c\u00f9ng h\u00e0ng.
+T2..T7, CN l\u00e0 th\u1ee9 trong tu\u1ea7n, kh\u00f4ng ph\u1ea3i title. "tu\u1ea7n sau" kh\u00f4ng ph\u1ea3i ng\u00e0y c\u1ee5 th\u1ec3 n\u00ean deadline null.
+Ng\u00e0y D/M ho\u1eb7c DD/MM l\u00e0 ng\u00e0y/th\u00e1ng. D\u00f9ng n\u0103m hi\u1ec7n t\u1ea1i n\u1ebfu ng\u00e0y \u0111\u00f3 c\u00f2n \u1edf ph\u00eda tr\u01b0\u1edbc, n\u1ebfu \u0111\u00e3 qua th\u00ec d\u00f9ng n\u0103m k\u1ebf ti\u1ebfp.
+Kh\u00f4ng t\u1ef1 b\u1ecba ch\u1eef kh\u00f3 \u0111\u1ecdc; gi\u1eef nguy\u00ean ph\u1ea7n \u0111\u1ecdc \u0111\u01b0\u1ee3c. Ch\u1ec9 d\u00f9ng \u0111\u00fang c\u00e1c key title, content, deadline."""
 
-MODEL = "qwen2.5vl:3b"
-MAX_IMAGE_SIDE = 1280
+MODEL = "gemma3n:e2b"
+MAX_IMAGE_SIDE = 1800
 IMAGE_QUALITY = 85
+STRIP_OVERLAP = 100
 
 
 def _prepare_image(image: Path) -> Path:
@@ -52,70 +53,131 @@ def parse_deadline(value: str) -> date:
         return candidate
     raise ValueError(f"Deadline không hợp lệ: {value!r}")
 
+def _normalize_task(item: dict) -> dict:
+    """Recover explicit day/month dates the vision model put in another field."""
+    for key in ("title", "content"):
+        value = str(item.get(key) or "")
+        match = re.search(
+            r"(?:(T[2-7]|CN)\s*)?\(?\b(\d{1,2})[./-](\d{1,2})(?:[./-](\d{4}))?\)?",
+            value,
+            re.IGNORECASE,
+        )
+        if not match:
+            continue
+        weekday_text, day_text, month_text, year_text = match.groups()
+        day, month = int(day_text), int(month_text)
+        if year_text:
+            candidate = date(int(year_text), month, day)
+        elif weekday_text:
+            # A weekday plus day/month identifies the intended school year. Pick
+            # the matching weekday closest to today, allowing a date just passed.
+            weekday_number = 6 if weekday_text.upper() == "CN" else int(weekday_text[1]) - 2
+            candidates = [
+                date(year, month, day)
+                for year in (date.today().year - 1, date.today().year, date.today().year + 1)
+                if date(year, month, day).weekday() == weekday_number
+            ]
+            candidate = min(candidates, key=lambda value: abs((value - date.today()).days)) if candidates else date(date.today().year, month, day)
+        else:
+            candidate = date(date.today().year, month, day)
+            if candidate < date.today():
+                candidate = date(candidate.year + 1, month, day)
+        if not item.get("deadline"):
+            item["deadline"] = candidate.isoformat()
+        value = value[:match.start()] + value[match.end():]
+        item[key] = re.sub(r"\s+", " ", value).strip(" \t:;-()")
+    if item.get("deadline"):
+        try:
+            item["deadline"] = parse_deadline(str(item["deadline"])).isoformat()
+        except ValueError:
+            pass
+    return item
+
+
+def _image_strips(image: Path) -> list[Path]:
+    """Drop the page heading and split the task area into two overlapping crops."""
+    paths: list[Path] = []
+    with Image.open(image) as original:
+        source = original.convert("RGB")
+        width, height = source.size
+        top = int(height * 0.13) if height > width * 0.55 else 0
+        usable = height - top
+        strip_height = max(usable // 2, 1)
+        starts = [top, top + max(strip_height - STRIP_OVERLAP, 1)]
+        for start in starts:
+            end = min(start + strip_height, height)
+            crop = source.crop((0, start, width, end))
+            crop.thumbnail((MAX_IMAGE_SIDE, MAX_IMAGE_SIDE), Image.Resampling.LANCZOS)
+            temp = NamedTemporaryFile(suffix=".jpg", delete=False)
+            path = Path(temp.name)
+            temp.close()
+            crop.save(path, format="JPEG", quality=IMAGE_QUALITY, optimize=True)
+            paths.append(path)
+            if end == height:
+                break
+    return paths
+
+
 def extract_tasks(image_path: str) -> list[dict]:
     image = Path(image_path)
     if not image.is_file():
-        raise FileNotFoundError(f"Không tìm thấy ảnh: {image}")
+        raise FileNotFoundError(f"Kh\u00f4ng t\u00ecm th\u1ea5y \u1ea3nh: {image}")
 
-    # Ollama chat là blocking. Timeout giúp không bị treo vô hạn khi Ollama
-    # chưa chạy hoặc model chưa được cài.
-    # Dùng localhost để phù hợp cả cấu hình Ollama bind theo hostname.
-    # Vision model có thể mất vài phút khi chạy CPU hoặc load lần đầu.
-    prepared_image = _prepare_image(image)
+    prepared_images = _image_strips(image)
     client = ollama.Client(host="http://localhost:11434", timeout=300)
+    tasks: list[dict] = []
     try:
-        response = client.chat(
-            model=MODEL,
-            messages=[{"role": "user", "content": PROMPT, "images": [str(prepared_image.resolve())]}],
-            think=False,
-            format="json",
-            options={"temperature": 0, "num_predict": 256, "num_ctx": 4096},
-            stream=False,
-        )
+        for prepared_image in prepared_images:
+            response = client.chat(
+                model=MODEL,
+                messages=[{"role": "user", "content": PROMPT, "images": [str(prepared_image.resolve())]}],
+                format="json",
+                options={"temperature": 0, "num_predict": 768, "num_ctx": 8192},
+                stream=False,
+            )
+            text = (response.get("message", {}).get("content") or "").strip()
+            if not text:
+                continue
+            try:
+                parsed = json.loads(text)
+            except json.JSONDecodeError:
+                match = re.search(r"(?:\[.*\]|\{.*\})", text, flags=re.DOTALL)
+                if not match:
+                    continue
+                try:
+                    parsed = json.loads(match.group(0))
+                except json.JSONDecodeError:
+                    continue
+            if isinstance(parsed, dict):
+                parsed = [parsed]
+            if isinstance(parsed, list):
+                tasks.extend(item for item in parsed if isinstance(item, dict))
     except Exception as exc:
-        raise RuntimeError(
-            "Không gọi được Ollama: "
-            f"{type(exc).__name__}: {exc}"
-        ) from exc
+        raise RuntimeError(f"Kh\u00f4ng g\u1ecdi \u0111\u01b0\u1ee3c Ollama: {type(exc).__name__}: {exc}") from exc
     finally:
-        prepared_image.unlink(missing_ok=True)
-    message = response.get("message", {})
-    text = (message.get("content") or "").strip()
-    if not text:
-        text = (message.get("thinking") or "").strip()
-    # Không để phần suy nghĩ của Qwen làm hỏng JSON.
-    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
-    # Model đôi khi thêm lời giải thích/markdown trước JSON.
-    match = re.search(r"(?:\[.*\]|\{.*\})", text, flags=re.DOTALL)
-    if not match:
-        raise ValueError(f"AI không trả về JSON danh sách task. Response: {text[:300]!r}")
-    try:
-        result = json.JSONDecoder().raw_decode(text[match.start() :])[0]
-    except json.JSONDecodeError as exc:
-        raise ValueError(
-            f"AI tráº£ JSON khÃ´ng há»£p lá»‡: {text[:300]!r}"
-        ) from exc
-    if isinstance(result, dict):
-        result = [result]
-    if not isinstance(result, list):
-        raise ValueError("AI không trả về task hợp lệ")
-    # Fallback cho model nhỏ: tự tách dạng "math: workbook pg20".
-    for item in result:
-        if isinstance(item, dict):
-            # Moondream thường dùng subject/workbook/date thay cho schema yêu cầu.
-            if not item.get("title") and item.get("subject"):
-                item["title"] = item.pop("subject")
-            if not item.get("content") and item.get("workbook"):
-                item["content"] = item.pop("workbook")
-            if not item.get("deadline") and item.get("date"):
-                item["deadline"] = item.pop("date")
-            title = str(item.get("title", ""))
-            if ":" in title and not str(item.get("content", "")).strip():
-                subject, details = title.split(":", 1)
-                item["title"] = subject.strip()
-                item["content"] = details.strip()
-            for key in ("title", "content", "deadline"):
-                item.setdefault(key, None)
+        for prepared_image in prepared_images:
+            prepared_image.unlink(missing_ok=True)
+
+    # Dedupe items repeated in the overlap between crops.
+    result: list[dict] = []
+    seen: set[tuple[str, str, str]] = set()
+    for item in tasks:
+        item = dict(item)
+        if not item.get("title") and item.get("subject"):
+            item["title"] = item.pop("subject")
+        if not item.get("content") and item.get("workbook"):
+            item["content"] = item.pop("workbook")
+        if not item.get("deadline") and item.get("date"):
+            item["deadline"] = item.pop("date")
+        for key in ("title", "content", "deadline"):
+            item.setdefault(key, None)
+        item = _normalize_task(item)
+        signature = tuple(str(item.get(key) or "").strip().casefold() for key in ("title", "content", "deadline"))
+        if signature not in seen:
+            seen.add(signature) # pyright: ignore[reportArgumentType]
+            result.append(item)
+    if not result:
+        raise ValueError("AI kh\u00f4ng nh\u1eadn di\u1ec7n \u0111\u01b0\u1ee3c task n\u00e0o trong c\u00e1c v\u00f9ng \u1ea3nh")
     return result
 
 def import_from_image(manager, image_path: str) -> int:
@@ -134,7 +196,7 @@ def import_from_image(manager, image_path: str) -> int:
     return added
 
 if __name__ == "__main__":
-    image_path = Path(__file__).with_name("realsample.jpg")#ctx:4282tk
+    image_path = Path(__file__).with_name("realsamplecroped.jpg")#ctx:4282tk
     try:
         print(extract_tasks(str(image_path)))
     except Exception as exc:
