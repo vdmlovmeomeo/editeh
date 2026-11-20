@@ -8,17 +8,28 @@ from tempfile import NamedTemporaryFile
 from PIL import Image
 
 PROMPT = """
-\u0110\u1ecd c\u00e1c d\u00f2ng b\u00e0i t\u1eadp vi\u1ebft tay trong \u1ea3nh. Ch\u1ec9 tr\u1ea3 v\u1ec1 JSON array, kh\u00f4ng gi\u1ea3i th\u00edch.
-M\u1ed7i d\u00f2ng m\u00f4n h\u1ecdc l\u00e0 m\u1ed9t task ri\u00eang, kh\u00f4ng \u0111\u01b0\u1ee3c b\u1ecf c\u00e1c d\u00f2ng \u1edf d\u01b0\u1edbi. B\u1ecf qua ti\u00eau \u0111\u1ec1 chung \u0111\u1ea7u trang.
-Schema: {"title": "m\u00f4n h\u1ecdc", "content": "vi\u1ec7c c\u1ea7n l\u00e0m", "deadline": "YYYY-MM-DD" ho\u1eb7c null}.
-T\u00e1ch d\u1ea1ng "M\u00f4n: vi\u1ec7c" th\u00e0nh title v\u00e0 content. Ghi ch\u00fa ng\u00e0y/th\u1ee9 \u1edf c\u1ed9t b\u00ean ph\u1ea3i thu\u1ed9c v\u1ec1 task c\u00f9ng h\u00e0ng.
-T2..T7, CN l\u00e0 th\u1ee9 trong tu\u1ea7n, kh\u00f4ng ph\u1ea3i title. "tu\u1ea7n sau" kh\u00f4ng ph\u1ea3i ng\u00e0y c\u1ee5 th\u1ec3 n\u00ean deadline null.
-Ng\u00e0y D/M ho\u1eb7c DD/MM l\u00e0 ng\u00e0y/th\u00e1ng. D\u00f9ng n\u0103m hi\u1ec7n t\u1ea1i n\u1ebfu ng\u00e0y \u0111\u00f3 c\u00f2n \u1edf ph\u00eda tr\u01b0\u1edbc, n\u1ebfu \u0111\u00e3 qua th\u00ec d\u00f9ng n\u0103m k\u1ebf ti\u1ebfp.
-Kh\u00f4ng t\u1ef1 b\u1ecba ch\u1eef kh\u00f3 \u0111\u1ecdc; gi\u1eef nguy\u00ean ph\u1ea7n \u0111\u1ecdc \u0111\u01b0\u1ee3c. Ch\u1ec9 d\u00f9ng \u0111\u00fang c\u00e1c key title, content, deadline."""
+Đọc các dòng bài tập viết tay trong ảnh. Chỉ trả về JSON array, không giải thích.
+Mỗi dòng bài tập là một task riêng, không được bỏ dòng nào. Bỏ qua phần ghi chú đầu trang như Date, Sĩ số, Vắng, Muộn và tiêu đề Tuần.
+Schema: {"title": "môn học hoặc tên việc", "content": "việc cần làm", "deadline": "YYYY-MM-DD" hoặc null}.
+QUY TẮC TÁCH TRƯỜNG:
+- Nếu dòng có dạng "Môn học: việc cần làm", title chỉ là môn học; content chỉ là việc cần làm. Ví dụ "Văn: Hoàn thành HDOT Ngữ văn (làm ra giấy)" => title="Văn", content="Hoàn thành HDOT Ngữ văn (làm ra giấy)".
+- Nếu dòng chỉ ghi tên một việc/sự kiện, không có môn học hay phần việc riêng, đặt toàn bộ tên đó vào title và content là chuỗi rỗng. Ví dụ "MẶC LỄ PHỤC" => title="Mặc lễ phục", content="".
+- Nếu dòng có môn học rồi đến tên bài/việc, tách môn học làm title và tên bài/việc làm content. Ví dụ "Toán HDOT" => title="Toán", content="HDOT"; "Phiếu mục tiêu GHKI" => title="Phiếu mục tiêu", content="GHKI".
+- Đọc toàn bộ chiều ngang của từng dòng, đặc biệt cột bên phải. Chữ viết ở cột bên phải thuộc deadline hoặc ghi chú của task cùng hàng, không nối vào title/content. T2..T7, CN là thứ trong tuần, tuyệt đối không phải title. Hãy chuyển T2..T7/CN thành ngày cụ thể gần nhất trong năm hiện tại; nếu có "(tuần sau)" thì cộng thêm 7 ngày. Không trả deadline=null khi ảnh có ghi thứ; chỉ trả null khi dòng đó thật sự không có ngày/thứ.
+- Trước khi trả JSON, tự kiểm tra từng dòng: nếu nhìn thấy T2, T3, T4, T5, T6, T7 hoặc CN ở bên phải thì bắt buộc điền deadline cho task tương ứng.
+Ngày D/M hoặc DD/MM là ngày/tháng. Dùng năm hiện tại nếu ngày đó chưa qua; nếu đã qua thì dùng năm kế tiếp. Ngày ghi rõ năm thì giữ nguyên năm.
+Không tự bịa chữ khó đọc; giữ nguyên phần đọc được. Chỉ dùng đúng các key title, content, deadline."""
+"""
+lfm3-omni:2b
+gemma3:4b
+gemma3n:e2b
+nemotron-3.5-bolt:e4b
+bonsai-2:2b
+"""
 
 MODEL = "gemma3n:e2b"
-MAX_IMAGE_SIDE = 1800
-IMAGE_QUALITY = 85
+MAX_IMAGE_SIDE = 8192
+IMAGE_QUALITY = 100
 STRIP_OVERLAP = 100
 
 
@@ -53,6 +64,24 @@ def parse_deadline(value: str) -> date:
         return candidate
     raise ValueError(f"Deadline không hợp lệ: {value!r}")
 
+
+def _weekday_deadline(value: str, reference: date | None = None) -> date | None:
+    """Convert Vietnamese weekday notes (T2..T7/CN) to the next calendar date."""
+    text = str(value or "").strip().casefold()
+    match = re.search(r"(?<!\w)(t([2-7])|cn)(?:\s*\(([^)]*tuần[^)]*)\))?", text)
+    if not match:
+        return None
+    token, number, qualifier = match.groups()
+    target = 6 if token == "cn" else int(number) - 2  # Monday=0
+    today = reference or date.today()
+    days_ahead = (target - today.weekday()) % 7
+    # A bare weekday means the next occurrence; same-day means today.
+    if days_ahead == 0 and today.weekday() != target:
+        days_ahead = 7
+    if qualifier and "sau" in qualifier:
+        days_ahead += 7
+    return today.fromordinal(today.toordinal() + days_ahead)
+
 def _normalize_task(item: dict) -> dict:
     """Recover explicit day/month dates the vision model put in another field."""
     for key in ("title", "content"):
@@ -69,8 +98,8 @@ def _normalize_task(item: dict) -> dict:
         if year_text:
             candidate = date(int(year_text), month, day)
         elif weekday_text:
-            # A weekday plus day/month identifies the intended school year. Pick
-            # the matching weekday closest to today, allowing a date just passed.
+            ''' A weekday plus day/month identifies the intended school year. Pick
+                the matching weekday closest to today, allowing a date just passed.'''
             weekday_number = 6 if weekday_text.upper() == "CN" else int(weekday_text[1]) - 2
             candidates = [
                 date(year, month, day)
@@ -86,9 +115,30 @@ def _normalize_task(item: dict) -> dict:
             item["deadline"] = candidate.isoformat()
         value = value[:match.start()] + value[match.end():]
         item[key] = re.sub(r"\s+", " ", value).strip(" \t:;-()")
+    '''Weekday notes are often returned in deadline, or appended to the right
+        of the task text. Resolve them before validating explicit date strings.'''
+    for key in ("deadline", "title", "content"):
+        value = str(item.get(key) or "")
+        weekday = _weekday_deadline(value)
+        if weekday and not item.get("deadline"):
+            item["deadline"] = weekday.isoformat()
+        if key != "deadline" and weekday:
+            item[key] = re.sub(
+                r"(?<!\w)(?:T[2-7]|CN)(?:\s*\([^)]*tuần[^)]*\))?",
+                "",
+                value,
+                flags=re.IGNORECASE,
+            )
+            item[key] = re.sub(r"\s+", " ", item[key]).strip(" \t:;-()")
     if item.get("deadline"):
         try:
-            item["deadline"] = parse_deadline(str(item["deadline"])).isoformat()
+            parsed_deadline = parse_deadline(str(item["deadline"]))
+            ''' Old years are usually vision hallucinations (the board shows
+                the current school year). Do not expose a stale deadline.'''
+            if parsed_deadline.year < date.today().year:
+                item["deadline"] = None
+            else:
+                item["deadline"] = parsed_deadline.isoformat()
         except ValueError:
             pass
     return item
@@ -132,7 +182,7 @@ def extract_tasks(image_path: str) -> list[dict]:
                 model=MODEL,
                 messages=[{"role": "user", "content": PROMPT, "images": [str(prepared_image.resolve())]}],
                 format="json",
-                options={"temperature": 0, "num_predict": 768, "num_ctx": 8192},
+                options={"temperature": 0, "num_predict": 768, "num_ctx": 8192, "num_gpu": 0},
                 stream=False,
             )
             text = (response.get("message", {}).get("content") or "").strip()
@@ -149,7 +199,13 @@ def extract_tasks(image_path: str) -> list[dict]:
                 except json.JSONDecodeError:
                     continue
             if isinstance(parsed, dict):
-                parsed = [parsed]
+                # Some vision models wrap the array in a named property.
+                wrapped = next(
+                    (parsed[key] for key in ("tasks", "items", "data", "results")
+                     if isinstance(parsed.get(key), list)),
+                    None,
+                )
+                parsed = wrapped if wrapped is not None else [parsed]
             if isinstance(parsed, list):
                 tasks.extend(item for item in parsed if isinstance(item, dict))
     except Exception as exc:
@@ -158,7 +214,6 @@ def extract_tasks(image_path: str) -> list[dict]:
         for prepared_image in prepared_images:
             prepared_image.unlink(missing_ok=True)
 
-    # Dedupe items repeated in the overlap between crops.
     result: list[dict] = []
     seen: set[tuple[str, str, str]] = set()
     for item in tasks:
@@ -200,4 +255,4 @@ if __name__ == "__main__":
     try:
         print(extract_tasks(str(image_path)))
     except Exception as exc:
-        print(f"Lỗi: {exc}")
+        print(exc)

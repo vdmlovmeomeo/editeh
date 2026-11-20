@@ -11,4 +11,4 @@ if __name__ == "__main__":
     try:
         print(extract_tasks(str(image_path)))
     except Exception as exc:
-        print(f"Lỗi: {exc}")
+        print(exc)
