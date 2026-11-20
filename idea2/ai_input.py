@@ -20,17 +20,22 @@ QUY TẮC TÁCH TRƯỜNG:
 Ngày D/M hoặc DD/MM là ngày/tháng. Dùng năm hiện tại nếu ngày đó chưa qua; nếu đã qua thì dùng năm kế tiếp. Ngày ghi rõ năm thì giữ nguyên năm.
 Không tự bịa chữ khó đọc; giữ nguyên phần đọc được. Chỉ dùng đúng các key title, content, deadline."""
 """
+minicpm-v
+minicpm-v4.6
 lfm3-omni:2b
+lfm3
+lfm3-vl
 gemma3:4b
 gemma3n:e2b
+gemma3n:e4b
 nemotron-3.5-bolt:e4b
 bonsai-2:2b
 """
 
-MODEL = "gemma3n:e2b"
-MAX_IMAGE_SIDE = 8192
+MODEL = "lfm3-omni:2b"
+MAX_IMAGE_SIDE = 1024
 IMAGE_QUALITY = 100
-STRIP_OVERLAP = 100
+STRIP_OVERLAP = 50
 
 
 def _prepare_image(image: Path) -> Path:
@@ -173,16 +178,32 @@ def extract_tasks(image_path: str) -> list[dict]:
     if not image.is_file():
         raise FileNotFoundError(f"Kh\u00f4ng t\u00ecm th\u1ea5y \u1ea3nh: {image}")
 
-    prepared_images = _image_strips(image)
+    # Send the original board as one image; do not split it into strips.
+    prepared_images = [_prepare_image(image)]
+    today = date.today()
+    weekday_names = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"]
+    example_output_JSON = """[
+  {"title": "ESL", "content": "Language Companion", "deadline": "06/07/2026"},
+  {"title": "ESL", "content": "Flyer", "deadline": "06/07/2026"},
+  {"title": "ESL", "content": "Workbook p42", "deadline": "06/07/2026"}
+]
+"""
+    date_context = (
+        f"\nTHÔNG TIN THỜI GIAN THAM CHIẾU: Hôm nay là {weekday_names[today.weekday()]} "
+        f"ngày {today.day:02d}/{today.month:02d}/{today.year}. "
+        "Dùng mốc này để đổi T2..T7/CN thành ngày ISO YYYY-MM-DD. "
+        "QUAN TRỌNG: phải quét từ trên xuống dưới toàn bộ ảnh và trả về một phần tử cho MỖI dòng homework; "
+        "không dừng sau dòng đầu tiên, kể cả khi dòng đó có content rỗng."
+    )
     client = ollama.Client(host="http://localhost:11434", timeout=300)
     tasks: list[dict] = []
     try:
         for prepared_image in prepared_images:
             response = client.chat(
                 model=MODEL,
-                messages=[{"role": "user", "content": PROMPT, "images": [str(prepared_image.resolve())]}],
+                messages=[{"role": "user", "content": "Read every visible homework in the image from top to bottom. Each line is a separate task; never merge adjacent lines. The title is only subject like (e.g. toán, văn, tiếng Anh, lý, hóa, sinh, sử, địa, tin,..., esl, math, literature...). Content is the work text (workbook, language companion, HDOT, SBT,...). If the subject is repeated for subsequent lines, use the repeated subject. Return ONLY a JSON array, one object of the JSON array per row of infomation in the image, using exactly 'title', 'content', 'deadline'.\n" + date_context + f"Your output must look like this: {example_output_JSON}", "images": [str(prepared_image.resolve())]}],
                 format="json",
-                options={"temperature": 0, "num_predict": 768, "num_ctx": 8192, "num_gpu": 0},
+                options={"temperature": 0, "num_predict": 2048, "num_ctx": 8192, "num_gpu": 0},
                 stream=False,
             )
             text = (response.get("message", {}).get("content") or "").strip()
@@ -251,7 +272,7 @@ def import_from_image(manager, image_path: str) -> int:
     return added
 
 if __name__ == "__main__":
-    image_path = Path(__file__).with_name("realsamplecroped.jpg")#ctx:4282tk
+    image_path = Path(__file__).with_name("bt.jpg")#ctx:4282tk
     try:
         print(extract_tasks(str(image_path)))
     except Exception as exc:
