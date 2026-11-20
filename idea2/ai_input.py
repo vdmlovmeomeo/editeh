@@ -8,17 +8,20 @@ from tempfile import NamedTemporaryFile
 from PIL import Image
 
 PROMPT = """
-Đọc các dòng bài tập viết tay trong ảnh. Chỉ trả về JSON array, không giải thích.
-Mỗi dòng bài tập là một task riêng, không được bỏ dòng nào. Bỏ qua phần ghi chú đầu trang như Date, Sĩ số, Vắng, Muộn và tiêu đề Tuần.
-Schema: {"title": "môn học hoặc tên việc", "content": "việc cần làm", "deadline": "YYYY-MM-DD" hoặc null}.
-QUY TẮC TÁCH TRƯỜNG:
-- Nếu dòng có dạng "Môn học: việc cần làm", title chỉ là môn học; content chỉ là việc cần làm. Ví dụ "Văn: Hoàn thành HDOT Ngữ văn (làm ra giấy)" => title="Văn", content="Hoàn thành HDOT Ngữ văn (làm ra giấy)".
-- Nếu dòng chỉ ghi tên một việc/sự kiện, không có môn học hay phần việc riêng, đặt toàn bộ tên đó vào title và content là chuỗi rỗng. Ví dụ "MẶC LỄ PHỤC" => title="Mặc lễ phục", content="".
-- Nếu dòng có môn học rồi đến tên bài/việc, tách môn học làm title và tên bài/việc làm content. Ví dụ "Toán HDOT" => title="Toán", content="HDOT"; "Phiếu mục tiêu GHKI" => title="Phiếu mục tiêu", content="GHKI".
-- Đọc toàn bộ chiều ngang của từng dòng, đặc biệt cột bên phải. Chữ viết ở cột bên phải thuộc deadline hoặc ghi chú của task cùng hàng, không nối vào title/content. T2..T7, CN là thứ trong tuần, tuyệt đối không phải title. Hãy chuyển T2..T7/CN thành ngày cụ thể gần nhất trong năm hiện tại; nếu có "(tuần sau)" thì cộng thêm 7 ngày. Không trả deadline=null khi ảnh có ghi thứ; chỉ trả null khi dòng đó thật sự không có ngày/thứ.
-- Trước khi trả JSON, tự kiểm tra từng dòng: nếu nhìn thấy T2, T3, T4, T5, T6, T7 hoặc CN ở bên phải thì bắt buộc điền deadline cho task tương ứng.
-Ngày D/M hoặc DD/MM là ngày/tháng. Dùng năm hiện tại nếu ngày đó chưa qua; nếu đã qua thì dùng năm kế tiếp. Ngày ghi rõ năm thì giữ nguyên năm.
-Không tự bịa chữ khó đọc; giữ nguyên phần đọc được. Chỉ dùng đúng các key title, content, deadline."""
+Ảnh là bảng bài tập viết tay. Mỗi dòng bài tập là một task riêng. Đọc từ trên xuống dưới, không bỏ dòng nào.
+
+Trả về JSON dạng {"tasks": [...]}. Mỗi phần tử có đúng 3 key: "title", "content", "deadline".
+
+Quy tắc:
+1. title: chỉ là tên môn học, ví dụ "ESL", "Sử", "Toán", "Văn", "Lý", "Anh". Không đưa dấu ":" hay nội dung việc vào title.
+2. content: việc cần làm, không kèm tên môn. Ví dụ "ESL: Flyer" thì title "ESL", content "Flyer". "Toán: Lý thuyết : 5 chương" thì title "Toán", content "Lý thuyết : 5 chương".
+3. Dòng không ghi môn thì lấy môn của dòng môn gần nhất phía trên. Ví dụ "Workbook p42" nằm dưới "ESL" thì title là "ESL".
+4. Dòng chỉ là tiêu đề môn như "Toán:" không phải task, không xuất ra. Dùng môn đó cho các dòng bên dưới.
+5. deadline: ngày hoặc thứ ở cột bên phải cùng dòng, viết dạng YYYY-MM-DD. D/M là ngày/tháng. Dùng năm hiện tại; nếu ngày đó đã qua thì dùng năm kế tiếp. Thứ T2..T7, CN đổi sang ngày gần nhất theo mốc thời gian bên dưới. Nếu dòng không có ngày hoặc thứ thì để null.
+6. Tiêu đề bảng như "Date", "HW", "Deadline" không phải task, bỏ qua.
+7. Không tự bịa chữ khó đọc, giữ phần đọc được.
+8. Chỉ trả JSON, không giải thích.
+"""
 """
 minicpm-v
 minicpm-v4.6
@@ -48,26 +51,40 @@ def _prepare_image(image: Path) -> Path:
         temporary.close()
         prepared.save(temporary_path, format="JPEG", quality=IMAGE_QUALITY, optimize=True)
     return temporary_path
-def parse_deadline(value: str) -> date:
-    """Parse ISO dates and short dates such as 1/1 or 01/01."""
-    value = str(value).strip()
+
+def parse_deadline(value) -> date:
+    """Lấy ngày/tháng từ chuỗi và chọn năm gần hôm nay nhất (năm trước, năm nay hoặc năm sau).
+    Chấp nhận ISO do code tạo, DD/MM do model trả, và YYYY-DD-MM do model hay trả sai."""
+    text = str(value).strip()
+    today = date.today()
+
     try:
-        return date.fromisoformat(value)
+        parsed = date.fromisoformat(text)
+        if abs(parsed.year - today.year) <= 1:
+            return parsed
     except ValueError:
         pass
 
-    parts = value.replace("-", "/").split("/")
-    if len(parts) == 2:
-        first, second = (int(part) for part in parts)
-        # Model thường trả M/D; nếu phần đầu > 12 thì hiểu là D/M.
-        month, day = (first, second) if first <= 12 else (second, first)
-        today = date.today()
-        year = today.year
-        candidate = date(year, month, day)
-        if candidate < today:
-            candidate = date(year + 1, month, day)
-        return candidate
-    raise ValueError(f"Deadline không hợp lệ: {value!r}")
+    parts = [p for p in re.split(r"[/.-]", text) if p.isdigit()]
+    if len(parts) >= 3 and len(parts[0]) == 4:
+        # YYYY-DD-MM: bỏ năm, hai số sau là ngày và tháng theo thứ tự model hay trả.
+        day, month = int(parts[1]), int(parts[2])
+    elif len(parts) >= 2:
+        # DD/MM hoặc M/D: nếu số sau > 12 thì không thể là tháng, đảo lại.
+        first, second = int(parts[0]), int(parts[1])
+        day, month = (first, second) if second <= 12 else (second, first)
+    else:
+        raise ValueError(f"Deadline không hợp lệ: {text!r}")
+
+    candidates = []
+    for year in (today.year - 1, today.year, today.year + 1):
+        try:
+            candidates.append(date(year, month, day))
+        except ValueError:
+            continue
+    if not candidates:
+        raise ValueError(f"Deadline không hợp lệ: {text!r}")
+    return min(candidates, key=lambda d: abs((d - today).days))
 
 
 def _weekday_deadline(value: str, reference: date | None = None) -> date | None:
@@ -87,6 +104,7 @@ def _weekday_deadline(value: str, reference: date | None = None) -> date | None:
         days_ahead += 7
     return today.fromordinal(today.toordinal() + days_ahead)
 
+
 def _normalize_task(item: dict) -> dict:
     """Recover explicit day/month dates the vision model put in another field."""
     for key in ("title", "content"):
@@ -103,8 +121,8 @@ def _normalize_task(item: dict) -> dict:
         if year_text:
             candidate = date(int(year_text), month, day)
         elif weekday_text:
-            ''' A weekday plus day/month identifies the intended school year. Pick
-                the matching weekday closest to today, allowing a date just passed.'''
+            # A weekday plus day/month identifies the intended school year. Pick
+            # the matching weekday closest to today, allowing a date just passed.
             weekday_number = 6 if weekday_text.upper() == "CN" else int(weekday_text[1]) - 2
             candidates = [
                 date(year, month, day)
@@ -120,14 +138,20 @@ def _normalize_task(item: dict) -> dict:
             item["deadline"] = candidate.isoformat()
         value = value[:match.start()] + value[match.end():]
         item[key] = re.sub(r"\s+", " ", value).strip(" \t:;-()")
-    '''Weekday notes are often returned in deadline, or appended to the right
-        of the task text. Resolve them before validating explicit date strings.'''
-    for key in ("deadline", "title", "content"):
+
+    # Weekday notes are often returned in deadline, or appended to the right
+    # of the task text. Resolve them before validating explicit date strings.
+        # Thứ (T2..CN) có thể nằm ở deadline hoặc cuối title/content.
+    deadline_text = str(item.get("deadline") or "")
+    if deadline_text and not re.search(r"\d", deadline_text):
+        weekday = _weekday_deadline(deadline_text)
+        item["deadline"] = weekday.isoformat() if weekday else None
+    for key in ("title", "content"):
         value = str(item.get(key) or "")
         weekday = _weekday_deadline(value)
-        if weekday and not item.get("deadline"):
-            item["deadline"] = weekday.isoformat()
-        if key != "deadline" and weekday:
+        if weekday:
+            if not item.get("deadline"):
+                item["deadline"] = weekday.isoformat()
             item[key] = re.sub(
                 r"(?<!\w)(?:T[2-7]|CN)(?:\s*\([^)]*tuần[^)]*\))?",
                 "",
@@ -135,11 +159,12 @@ def _normalize_task(item: dict) -> dict:
                 flags=re.IGNORECASE,
             )
             item[key] = re.sub(r"\s+", " ", item[key]).strip(" \t:;-()")
+            
     if item.get("deadline"):
         try:
             parsed_deadline = parse_deadline(str(item["deadline"]))
-            ''' Old years are usually vision hallucinations (the board shows
-                the current school year). Do not expose a stale deadline.'''
+            # Old years are usually vision hallucinations (the board shows
+            # the current school year). Do not expose a stale deadline.
             if parsed_deadline.year < date.today().year:
                 item["deadline"] = None
             else:
@@ -147,30 +172,6 @@ def _normalize_task(item: dict) -> dict:
         except ValueError:
             pass
     return item
-
-
-def _image_strips(image: Path) -> list[Path]:
-    """Drop the page heading and split the task area into two overlapping crops."""
-    paths: list[Path] = []
-    with Image.open(image) as original:
-        source = original.convert("RGB")
-        width, height = source.size
-        top = int(height * 0.13) if height > width * 0.55 else 0
-        usable = height - top
-        strip_height = max(usable // 2, 1)
-        starts = [top, top + max(strip_height - STRIP_OVERLAP, 1)]
-        for start in starts:
-            end = min(start + strip_height, height)
-            crop = source.crop((0, start, width, end))
-            crop.thumbnail((MAX_IMAGE_SIDE, MAX_IMAGE_SIDE), Image.Resampling.LANCZOS)
-            temp = NamedTemporaryFile(suffix=".jpg", delete=False)
-            path = Path(temp.name)
-            temp.close()
-            crop.save(path, format="JPEG", quality=IMAGE_QUALITY, optimize=True)
-            paths.append(path)
-            if end == height:
-                break
-    return paths
 
 
 def extract_tasks(image_path: str) -> list[dict]:
@@ -182,18 +183,10 @@ def extract_tasks(image_path: str) -> list[dict]:
     prepared_images = [_prepare_image(image)]
     today = date.today()
     weekday_names = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"]
-    example_output_JSON = """[
-  {"title": "ESL", "content": "Language Companion", "deadline": "06/07/2026"},
-  {"title": "ESL", "content": "Flyer", "deadline": "06/07/2026"},
-  {"title": "ESL", "content": "Workbook p42", "deadline": "06/07/2026"}
-]
-"""
     date_context = (
-        f"\nTHÔNG TIN THỜI GIAN THAM CHIẾU: Hôm nay là {weekday_names[today.weekday()]} "
-        f"ngày {today.day:02d}/{today.month:02d}/{today.year}. "
-        "Dùng mốc này để đổi T2..T7/CN thành ngày ISO YYYY-MM-DD. "
-        "QUAN TRỌNG: phải quét từ trên xuống dưới toàn bộ ảnh và trả về một phần tử cho MỖI dòng homework; "
-        "không dừng sau dòng đầu tiên, kể cả khi dòng đó có content rỗng."
+        f"\nM\u1ed1c th\u1eddi gian: h\u00f4m nay l\u00e0 {weekday_names[today.weekday()]} "
+        f"ng\u00e0y {today.day:02d}/{today.month:02d}/{today.year}."
+        "\nTr\u00edch xu\u1ea5t c\u00e1c task trong \u1ea3nh v\u00e0 tr\u1ea3 v\u1ec1 JSON theo quy t\u1eafc tr\u00ean."
     )
     client = ollama.Client(host="http://localhost:11434", timeout=300)
     tasks: list[dict] = []
@@ -201,7 +194,11 @@ def extract_tasks(image_path: str) -> list[dict]:
         for prepared_image in prepared_images:
             response = client.chat(
                 model=MODEL,
-                messages=[{"role": "user", "content": "Read every visible homework in the image from top to bottom. Each line is a separate task; never merge adjacent lines. The title is only subject like (e.g. toán, văn, tiếng Anh, lý, hóa, sinh, sử, địa, tin,..., esl, math, literature...). Content is the work text (workbook, language companion, HDOT, SBT,...). If the subject is repeated for subsequent lines, use the repeated subject. Return ONLY a JSON array, one object of the JSON array per row of infomation in the image, using exactly 'title', 'content', 'deadline'.\n" + date_context + f"Your output must look like this: {example_output_JSON}", "images": [str(prepared_image.resolve())]}],
+                messages=[{
+                    "role": "user",
+                    "content": PROMPT + date_context,
+                    "images": [str(prepared_image.resolve())],
+                }],
                 format="json",
                 options={"temperature": 0, "num_predict": 2048, "num_ctx": 8192, "num_gpu": 0},
                 stream=False,
@@ -220,9 +217,9 @@ def extract_tasks(image_path: str) -> list[dict]:
                 except json.JSONDecodeError:
                     continue
             if isinstance(parsed, dict):
-                # Some vision models wrap the array in a named property.
+                # Vision models often wrap the array in a named property.
                 wrapped = next(
-                    (parsed[key] for key in ("tasks", "items", "data", "results")
+                    (parsed[key] for key in ("tasks", "entries", "items", "data", "results")
                      if isinstance(parsed.get(key), list)),
                     None,
                 )
@@ -245,6 +242,11 @@ def extract_tasks(image_path: str) -> list[dict]:
             item["content"] = item.pop("workbook")
         if not item.get("deadline") and item.get("date"):
             item["deadline"] = item.pop("date")
+        # Model đôi khi gộp "Môn : việc" vào title; tách lại khi content trống.
+        title = str(item.get("title") or "")
+        if ":" in title and not str(item.get("content") or "").strip():
+            head, tail = title.split(":", 1)
+            item["title"], item["content"] = head.strip(), tail.strip()
         for key in ("title", "content", "deadline"):
             item.setdefault(key, None)
         item = _normalize_task(item)
@@ -255,6 +257,7 @@ def extract_tasks(image_path: str) -> list[dict]:
     if not result:
         raise ValueError("AI kh\u00f4ng nh\u1eadn di\u1ec7n \u0111\u01b0\u1ee3c task n\u00e0o trong c\u00e1c v\u00f9ng \u1ea3nh")
     return result
+
 
 def import_from_image(manager, image_path: str) -> int:
     added = 0
@@ -271,8 +274,9 @@ def import_from_image(manager, image_path: str) -> int:
     manager.save_to_csv()
     return added
 
+
 if __name__ == "__main__":
-    image_path = Path(__file__).with_name("bt.jpg")#ctx:4282tk
+    image_path = Path(__file__).with_name("bt.jpg")
     try:
         print(extract_tasks(str(image_path)))
     except Exception as exc:
