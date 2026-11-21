@@ -1,7 +1,10 @@
 from models import Task
 import csv
 from datetime import datetime,date
+from pathlib import Path
 import ai_input
+
+DEFAULT_CSV = Path(__file__).resolve().parent / 'csvs' / 'tst.csv'
 
 class TaskManager:
     def __init__(self):
@@ -73,7 +76,9 @@ class TaskManager:
 
     #* ---------- Lưu trữ ----------
 
-    def save_to_csv(self, path: str='C:/Users/vuong/school/2026-2027/editeh/idea2/csvs/tst.csv') -> None:
+    def save_to_csv(self, path: str | None = None) -> None:
+        path = str(path or DEFAULT_CSV)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
         FIELDS = ["id", "title", "done", "content", 'deadline', "created_at", "completed_at"]
         with open(path, 'w', encoding='utf-8', newline='') as f:
             wr = csv.DictWriter(f, fieldnames=FIELDS)
@@ -89,21 +94,29 @@ class TaskManager:
                             })
             f.close()
 
-    def load_from_csv(self, path: str='C:/Users/vuong/school/2026-2027/editeh/idea2/csvs/tst.csv') -> None:
+    def load_from_csv(self, path: str | None = None) -> None:
+        path = str(path or DEFAULT_CSV)
         try:
             with open(path, 'r', newline='', encoding='utf-8') as f:
                 rd = csv.DictReader(f)
-                tasks = [Task(id=int(r['id']), 
-                              title=r['title'], 
-                              done=bool(r['done']=='True'), 
-                              content=r['content'], 
-                              deadline=date.fromisoformat(r["deadline"]), 
-                              created_at=datetime.fromisoformat(r['created_at']),
-                              completed_at=(datetime.fromisoformat(r['completed_at']) if r.get('completed_at') else None))
-                              
-                              for r in rd]
+                tasks = []
+                for row in rd:
+                    if not row.get('id', '').strip():
+                        continue
+                    try:
+                        tasks.append(Task(
+                            id=int(row['id']),
+                            title=(row.get('title') or '').strip(),
+                            done=row.get('done') == 'True',
+                            content=row.get('content') or '',
+                            deadline=date.fromisoformat(row['deadline']),
+                            created_at=datetime.fromisoformat(row['created_at']),
+                            completed_at=(datetime.fromisoformat(row['completed_at']) if row.get('completed_at') else None),
+                        ))
+                    except (KeyError, TypeError, ValueError):
+                        continue
         except FileNotFoundError:
-            # print(f"Không tìm thấy file: {path}")
+            #print('nf)
             return
 
         self._tasks = tasks

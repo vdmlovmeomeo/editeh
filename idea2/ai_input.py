@@ -20,7 +20,9 @@ Quy tắc:
 5. deadline: ngày hoặc thứ ở cột bên phải cùng dòng, viết dạng YYYY-MM-DD. D/M là ngày/tháng. Dùng năm hiện tại; nếu ngày đó đã qua thì dùng năm kế tiếp. Thứ T2..T7, CN đổi sang ngày gần nhất theo mốc thời gian bên dưới. Nếu dòng không có ngày hoặc thứ thì để null.
 6. Tiêu đề bảng như "Date", "HW", "Deadline" không phải task, bỏ qua.
 7. Không tự bịa chữ khó đọc, giữ phần đọc được.
-8. Chỉ trả JSON, không giải thích.
+8. Một môn có nhiều việc con (nhiều dòng hoặc có nhánh) thì tách thành nhiều task, mỗi việc con là một task riêng, cùng title và deadline. Ví dụ ESL có 3 việc thì ra 3 task.
+9. Tên môn viết chuẩn: Toán, Văn, Anh, ESL, Sử, Địa, Lý, Hóa, Sinh học, Tin. Chữ viết tay giống "Uẩn" hoặc "Uần" thì là "Văn".
+10. Chỉ trả JSON, không giải thích.
 """
 """
 minicpm-v
@@ -36,6 +38,7 @@ bonsai-2:2b
 """
 
 MODEL = "lfm3-omni:2b"
+# MODEL = 'gemma3n:e2b'
 MAX_IMAGE_SIDE = 1024
 IMAGE_QUALITY = 100
 STRIP_OVERLAP = 50
@@ -276,7 +279,7 @@ def import_from_image(manager, image_path: str) -> int:
 
 
 if __name__ == "__main__":
-    image_path = Path(__file__).with_name("bt.jpg")
+    image_path = Path(__file__).with_name("bt2.jpg")
     try:
         print(extract_tasks(str(image_path)))
     except Exception as exc:

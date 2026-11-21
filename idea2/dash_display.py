@@ -7,31 +7,31 @@ from manager import TaskManager
 from dash import deadline_heatmap, completed_heatmap
 
 DEADLINE_COLORS = [
-    "#313244",  # 0
-    "#4a3328",  # 1
-    "#5e3a2a",  # 2
-    "#724230",  # 3
-    "#874a35",  # 4
-    "#9c533a",  # 5
-    "#b25c3e",  # 6
-    "#c86542",  # 7
-    "#dd6f45",  # 8
-    "#e8604a",  # 9
-    "#f38ba8",  # 10
+    "#26344a",  # 0
+    "#ffd166",  # 1
+    "#ffb347",  # 2
+    "#ff8c42",  # 3
+    "#ff5d5d",  # 4
+    "#ff477e",  # 5
+    "#f72585",  # 6
+    "#d61c7a",  # 7
+    "#b5179e",  # 8
+    "#7209b7",  # 9
+    "#560bad",  # 10
 ]
 
 COMPLETED_COLORS = [
-    "#313244",  # 0
-    "#1f3b2d",  # 1
-    "#255238",  # 2
-    "#2b6943",  # 3
-    "#317f4f",  # 4
-    "#379a5b",  # 5
-    "#3db467",  # 6
-    "#46c574",  # 7
-    "#56d682",  # 8
-    "#6fe293",  # 9
-    "#8be9a8",  # 10
+    "#26344a",  # 0
+    "#b8f2e6",  # 1
+    "#7ae582",  # 2
+    "#4cd97b",  # 3
+    "#2dd881",  # 4
+    "#00c853",  # 5
+    "#00bfa5",  # 6
+    "#00a896",  # 7
+    "#008f8c",  # 8
+    "#007f7b",  # 9
+    "#006d77",  # 10
 ]
 
 
@@ -68,7 +68,7 @@ class HeatmapDeadline(QWidget):
 
                 n = int(counts[day - 1])
                 level = min(n, 4)
-                text_color = "#1e1e2e" if level >= 3 else "#cdd6f4"
+                text_color = "#1e1e2e" if level != 0 else "#cdd6f4"
 
                 cell = make_label(str(day))
                 cell.setMinimumSize(20, 20)
@@ -104,7 +104,7 @@ class HeatmapCompleted(QWidget):
 
                 n = int(counts[day - 1])
                 level = min(n, 4)
-                text_color = "#1e1e2e" if level >= 3 else "#cdd6f4"
+                text_color = "#1e1e2e" if level != 0 else "#cdd6f4"
 
                 cell = make_label(str(day))
                 cell.setMinimumSize(20, 20)
