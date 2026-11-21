@@ -157,7 +157,7 @@ class MainWindow(QMainWindow):
         self.table = QTableWidget(0, len(self.headers)); self.table.setHorizontalHeaderLabels(self.headers); self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows); self.table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection); self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers); self.table.itemSelectionChanged.connect(self.select_task); self.table.horizontalHeader().setStretchLastSection(True); self.table.setWordWrap(True) # pyright: ignore[reportOptionalMemberAccess]
         self.editor = TaskEditor(self.manager); self.editor.saved.connect(self.data_changed); self.editor.done_requested.connect(self.done_from_details); self.editor.delete_requested.connect(self.delete_from_details)
         self.compact_detail = QFrame(); self.compact_detail.setObjectName("compactDetail"); compact_layout = QVBoxLayout(self.compact_detail)
-        self.compact_summary = QLabel("choose a task to see its details"); self.compact_summary.setObjectName("compactSummary"); self.compact_summary.setWordWrap(True); self.compact_summary.setMinimumHeight(92); compact_layout.addWidget(self.compact_summary)
+        self.compact_summary = QLabel("choose a task to pet it."); self.compact_summary.setObjectName("compactSummary"); self.compact_summary.setWordWrap(True); self.compact_summary.setMinimumHeight(92); compact_layout.addWidget(self.compact_summary)
         compact_actions = QHBoxLayout(); self.compact_done = QPushButton("done"); self.compact_done.clicked.connect(self.done_from_details); self.compact_delete = QPushButton("delete"); self.compact_delete.setObjectName("delete"); self.compact_delete.clicked.connect(self.delete_from_details); compact_actions.addWidget(self.compact_done); compact_actions.addWidget(self.compact_delete); compact_layout.addLayout(compact_actions)
         self.compact_detail.hide()
         self.content_splitter = QSplitter(Qt.Orientation.Vertical); self.content_splitter.setChildrenCollapsible(False); self.content_splitter.addWidget(self.table); self.content_splitter.addWidget(self.editor); self.content_splitter.addWidget(self.compact_detail); self.content_splitter.setStretchFactor(0, 3); self.content_splitter.setStretchFactor(1, 2); self.content_splitter.setSizes([430, 330, 0]); outer.addWidget(self.content_splitter, 1)
@@ -168,7 +168,7 @@ class MainWindow(QMainWindow):
         today = date.today()
         deadline = HeatmapDeadline(self.manager.get_all_task(), today.year, today.month)
         completed = HeatmapCompleted(self.manager.get_all_task(), today.year, today.month)
-        row.addWidget(QLabel("deadline dashboard")); row.addWidget(deadline); row.addWidget(QLabel("completed dashboard")); row.addWidget(completed)
+        row.addWidget(QLabel("deadline dashboard ⤵")); row.addWidget(deadline); row.addWidget(QLabel("\n\n\n\ncompleted dashboard ⤵")); row.addWidget(completed)
         layout.addLayout(row); layout.addStretch(); return page
 
     @staticmethod
@@ -227,7 +227,9 @@ class MainWindow(QMainWindow):
 
     def delete_task(self, task_id: int):
         task = self.manager.find(task_id)
-        if task and QMessageBox.question(self, "delete task", f"Delete '{task.title}'?") == QMessageBox.StandardButton.Yes:
+        if task:
+            # if QMessageBox.question(self, "delete task", f"Delete '{task.title}'?") != QMessageBox.StandardButton.Yes:
+            #     return
             self.manager.delete_task(task_id); self.editor.clear(); self.data_changed()
 
     def done_from_details(self):
@@ -255,7 +257,7 @@ class MainWindow(QMainWindow):
         if self.font_theme == "clean": self.compact_button.setText("full mode" if enabled else "compact mode")
         else: self.compact_button.setText("big-cat mode" if enabled else "tiny-cat mode")
         if enabled and self.table.currentRow() < 0:
-            self.compact_summary.setText("choose a work item for its summary")
+            self.compact_summary.setText("choose a work item to pet it.")
             self.compact_done.setEnabled(False); self.compact_delete.setEnabled(False)
         if enabled:
             self.setMinimumSize(0, 0); self.setMaximumSize(515, 475); self.setFixedSize(515, 475)
