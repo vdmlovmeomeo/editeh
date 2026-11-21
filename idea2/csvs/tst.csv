@@ -1,7 +1,6 @@
-id,title,done,content,deadline,created_at,completed_at
-1,ESL,False,"Language Companion Unit 4, Paragraph, Workbook P42",2026-11-18,2026-11-21T14:15:12.842576,
-2,Toán,False,"Lý thuyết: Hướng dẫn ô tập - PHT 01, khóa sát chặt luồng T11 - PHT 02",2026-11-23,2026-11-21T14:15:12.842608,
-3,Lịch sử,False,"Tóm tắt phần C, D",2026-11-24,2026-11-21T14:15:12.842608,
-4,Uẩn,False,Hướng dẫn ô tập - Làm giấy kiểm tra,2026-11-26,2026-11-21T14:15:12.842608,
-5,Địa,False,Bảng miễn,2026-11-26,2026-11-21T14:15:12.842608,
-6,Sinh học,False,HDOT (Lý thuyết),2026-11-27,2026-11-21T14:15:12.842608,
+id,title,content,country,work_type,priority,owner,deadline_type,deadline,internal_deadline,done,note,created_at,completed_at
+8,Toán,"Lý thuyết Hướng dẫn ôn tập - PHT 01, khảo sát chất lượng T11 - PHT 02",,general,urgent,,external,2026-11-23,,False,,2026-11-21T19:20:05.788604,
+9,Sử,"Tóm tắt phần C, D",,general,high,,external,2026-11-24,,False,,2026-11-21T19:20:05.788604,
+10,Văn,Hướng dẫn ôn tập - Làm giấy kiểm tra,,,normal,,external,2026-11-26,,False,,2026-11-21T19:20:05.788604,
+11,Địa,Bảng miễn,,general,urgent,,external,2026-11-26,,False,,2026-11-21T19:20:05.788604,
+12,Sinh học,HDOT (Lý thuyết),,,normal,,external,2026-11-27,,False,,2026-11-21T19:20:05.788604,

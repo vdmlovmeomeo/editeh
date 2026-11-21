@@ -274,7 +274,6 @@ def import_from_image(manager, image_path: str) -> int:
         except (KeyError, ValueError, TypeError):
             ...
 
-    manager.save_to_csv()
     return added
 
 
