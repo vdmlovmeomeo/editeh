@@ -1,5 +1,11 @@
 id,title,content,country,work_type,priority,owner,deadline_type,deadline,internal_deadline,done,note,created_at,completed_at
-8,Toán,"Lý thuyết Hướng dẫn ôn tập - PHT 01, khảo sát chất lượng T11 - PHT 02",,general,urgent,,external,2026-11-23,,True,,2026-11-21T19:20:05.788604,2026-11-21T22:20:22.212438
-10,Văn,Hướng dẫn ôn tập - Làm giấy kiểm tra,,,normal,,external,2026-11-26,,True,,2026-11-21T19:20:05.788604,2026-11-21T22:20:31.589153
-11,Địa,Bảng miễn,,general,urgent,,external,2026-11-26,,True,,2026-11-21T19:20:05.788604,2026-11-21T22:20:33.448749
-12,Sinh học,HDOT (Lý thuyết),,general,normal,,external,2026-11-27,,True,,2026-11-21T19:20:05.788604,2026-11-21T22:20:35.060409
+13,ESL,"Language Companion Unit 4
+Paragraph
+Workbook P42",,general,urgent,,external,2026-11-18,,False,,2026-11-21T22:36:54.858328,
+14,Toán,"Lý thuyết
+Hướng dẫn ô tập - PHT 01
+khảo sát chất lượng T11 - PHT 02",,,normal,,external,2026-11-23,,False,,2026-11-21T22:36:54.859423,
+15,Sử,"Tóm tắt phần C, D",,general,normal,,internal,2026-11-24,,False,,2026-11-21T22:36:54.859432,
+16,Văn,Hướng dẫn ô tập - Làm giấy kiểm tra,,,normal,,external,2026-11-26,,False,,2026-11-21T22:36:54.859437,
+17,Địa,Bảng miễn,,,normal,,external,2026-11-26,,False,,2026-11-21T22:36:54.859441,
+18,Sinh học,HDOT (Lý thuyết),,,normal,,external,2026-11-27,,False,,2026-11-21T22:36:54.859445,

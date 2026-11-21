@@ -54,7 +54,7 @@ class TaskEditor(QFrame):
         self.internal_date = QDateEdit(QDate.currentDate()); self.internal_date.setCalendarPopup(True); self.internal_date.setDisplayFormat("dd MMM yyyy"); self.internal_date.setEnabled(False)
         self.has_internal_date.toggled.connect(self.internal_date.setEnabled)
         self.note = QPlainTextEdit(placeholderText="context, links, or follow-up notes") # pyright: ignore[reportCallIssue]
-        self.work_type.setCurrentText("general")
+        self.work_type.setCurrentText("homework")
         for label, field in (("subject", self.subject), ("work", self.work), ("work type", self.work_type), ("urgency", self.priority), ("owner", self.owner), ("deadline type", self.deadline_type), ("due date", self.due_date), ("internal date", self.has_internal_date), ("internal due date", self.internal_date), ("note", self.note)):
             form.addRow(label, field)
         buttons = QHBoxLayout(); self.save_button = QPushButton("save task"); self.save_button.clicked.connect(self.save); self.clear_button = QPushButton("clear"); self.clear_button.clicked.connect(self.clear); self.done_button = QPushButton("done"); self.done_button.clicked.connect(self.done_requested.emit); self.delete_button = QPushButton("delete"); self.delete_button.setObjectName("delete"); self.delete_button.clicked.connect(self.delete_requested.emit); self.done_button.setEnabled(False); self.delete_button.setEnabled(False); buttons.addWidget(self.save_button); buttons.addWidget(self.clear_button); buttons.addWidget(self.done_button); buttons.addWidget(self.delete_button); form.addRow(buttons)
@@ -117,7 +117,7 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(DARK_STYLE if self.theme == "dark" else LIGHT_STYLE)
         # Keep font mode independent from the light/dark theme.
         font = QFont("Itim" if self.font_theme == "handwriting" else "Lora", 11)
-        QApplication.instance().setFont(font); self.setFont(font)
+        QApplication.instance().setFont(font); self.setFont(font) # pyright: ignore[reportOptionalMemberAccess, reportAttributeAccessIssue]
         for widget in self.findChildren(QWidget): widget.setFont(font)
         cat_path = ROOT / "assets" / ("black_cat.jpg" if self.theme == "dark" else "white_cat.jpg")
         cat_pixmap = QPixmap(str(cat_path))
@@ -268,7 +268,7 @@ class MainWindow(QMainWindow):
     def import_image(self):
         path, _ = QFileDialog.getOpenFileName(self, "choose image", str(ROOT), "images (*.png *.jpg *.jpeg)")
         if not path: return
-        self.statusBar().showMessage("reading image..."); self.worker = ImportWorker(self.manager, path); self.worker.finished.connect(self.import_done); self.worker.failed.connect(self.import_failed); self.worker.start() # pyright: ignore[reportOptionalMemberAccess]
+        self.statusBar().showMessage("a cat is reading your image..."); self.worker = ImportWorker(self.manager, path); self.worker.finished.connect(self.import_done); self.worker.failed.connect(self.import_failed); self.worker.start() # pyright: ignore[reportOptionalMemberAccess]
 
     def import_done(self, count: int):
         self.data_changed(); self.statusBar().showMessage(f"imported {count} task(s)") # pyright: ignore[reportOptionalMemberAccess]
